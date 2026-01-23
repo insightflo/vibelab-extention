@@ -46,10 +46,7 @@ VibeLab의 기본 스킬과 시너지를 극대화하는 6가지 프리미엄 �
 
 ### 0단계: VibeLab 먼저 설치
 
-```bash
-# VibeLab v1.7.1+ 설치 (필수)
-git clone https://github.com/anthropics/vibelab-skills ~/.claude/skills/vibelab
-```
+https://vibelabs.kr/skills/new
 
 ### 1단계: 본 확장팩 설치
 
