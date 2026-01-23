@@ -2,7 +2,7 @@
 
 **VibeLab v1.7.1+의 기획/태스크 시스템 위에서, 더 안전하고 정밀한 구현을 돕는 확장 스킬 팩**
 
-> ⚠️ **필수 요구사항**: 이 확장팩은 [VibeLab Skills v1.7.1+](https://github.com/vibelab/skills)이 설치된 환경에서만 정상 작동합니다.
+> ⚠️ **필수 요구사항**: 이 확장팩은 [VibeLab Skills v1.7.1+](https://vibelabs.kr/skills/new)이 설치된 환경에서만 정상 작동합니다.
 
 VibeLab의 `/socrates`와 `/tasks-generator`가 만들어낸 기획 문서와 태스크 목록을 기반으로, **레이어별 점진적 구현**, **맥락 복구**, **품질 감사** 등 고급 엔지니어링 기능을 제공합니다.
 
