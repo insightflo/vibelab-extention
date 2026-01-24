@@ -10,7 +10,7 @@ VibeLab의 `/socrates`와 `/tasks-generator`가 만들어낸 기획 문서와 �
 
 ## 🚀 확장 스킬 (Extension Skills)
 
-VibeLab의 기본 스킬과 시너지를 극대화하는 6가지 프리미엄 도구입니다.
+VibeLab의 기본 스킬과 시너지를 극대화하는 4가지 프리미엄 도구입니다.
 
 ### 1. 🏃 Agile Sprint Master (`/agile`)
 
@@ -32,13 +32,6 @@ VibeLab의 기본 스킬과 시너지를 극대화하는 6가지 프리미엄 �
 - **의존**: 기획 문서 및 코드베이스
 - **특징**: 정량적 품질 점수(Score) 산출 및 정밀 코드 감사.
 
-### 5. 🔗 Design Linker
-
-- **특징**: 기획 문서들 간의 의존성과 일관성을 자동으로 연결 및 검증.
-
-### 6. ☁️ Vercel Reviewer
-
-- **특징**: Vercel 배포 상태와 로그를 분석하여 즉각적인 피드백 제공.
 
 ---
 
