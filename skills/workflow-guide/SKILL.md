@@ -7,7 +7,7 @@ description: 여러 플러그인 중 상황에 맞는 워크플로우를 안내�
 
 > **목적**: VibeLab, Superpowers, SDD Tool, Everything Claude Code 등 여러 플러그인이 설치된 환경에서 상황에 맞는 최적의 워크플로우를 안내합니다.
 >
-> - **필독 지침**: 모든 워크플로우는 **[TEAM-CHARTER.md](file:///D:/92.MCPs/user-skills/TEAM-CHARTER.md)**의 에이전트 역할을 기반으로 합니다. (WSL: `/mnt/d/92.MCPs/user-skills/TEAM-CHARTER.md`)
+> - **필독 지침**: 모든 워크플로우는 **[TEAM-CHARTER.md](../../TEAM-CHARTER.md)**의 에이전트 역할을 기반으로 합니다.
 
 ---
 
