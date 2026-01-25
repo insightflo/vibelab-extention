@@ -64,6 +64,7 @@ ls package.json requirements.txt
 | ------------------------------- | -------------------------------------------- | -------------------------------------- |
 | 아이디어만 있음, 비기술자       | `/socrates` (일반 모드)                      | 21개 질문으로 아이디어 정제 (초심자용) |
 | 아이디어만 있음, **전문가**     | **`/socrates expert`**                       | 배치 질문 & 빠른 의사결정 (전문가용)   |
+| **도전적 기획 검증**            | **`/socrates Roast me`**                     | **🔥 약점 공격 및 직설적 비판 (v1.7.4)** |
 | 명세 품질이 중요, RFC 2119 필요 | `/sdd.constitution` → `/sdd.spec` (SDD Tool) | SHALL/SHOULD/MAY 키워드로 정밀 명세    |
 | 브레인스토밍만 빠르게           | `superpowers:brainstorm`                     | 빠른 디자인 리파인먼트                 |
 | 아키텍처 결정 필요              | `everything-claude-code/agents/planner`      | 상세 구현 계획 수립                    |
@@ -74,21 +75,22 @@ ls package.json requirements.txt
 | ----------------------- | ------------------------------------ | ------------------------------- |
 | 기획 문서 → 태스크 목록 | `/tasks-generator` (VibeLab)         | TDD/Worktree 규칙 적용 TASKS.md |
 | 기존 코드 분석 → 태스크 | `/tasks-generator analyze` (VibeLab) | 코드 분석 기반 태스크 추출      |
+| **대규모 태스크 분할**  | **`/tasks-generator from-docs`**     | **6종 문서 참고 정밀 분해 (v1.7.4)** |
 | SDD 명세 → 태스크       | `/sdd.tasks` (SDD Tool)              | 명세 기반 작업 분해             |
 | Superpowers 플랜        | `superpowers:writing-plans`          | 서브에이전트용 상세 구현 계획   |
 
 ### 🛠️ 구현 단계 (Implementation)
 
-| 상황                          | 권장 스킬                        | 설명                                             |
-| ----------------------------- | -------------------------------- | ------------------------------------------------ |
 | 프로젝트 초기 셋업            | `/project-bootstrap` (VibeLab)   | 에이전트 팀 + 스택 자동 구축                     |
 | **신규 프로젝트 시작**        | **`/agile auto`**                | **🦴💪✨ 레이어별 자동 구현 (권장)**             |
 | **디자인/기능/로직 변경**     | **`/agile iterate`**             | **🔄 영향받는 레이어만 스마트 반복 구현 (권장)** |
+| **초대량 태스크 (50~200개)**  | **`/auto-orchestrate --ultra-thin`** | **초경량/무중단 자동화 (v1.7.4)**                |
+| **에러 반복 발생 시**         | **`/auto-orchestrate --ralph`**      | **자기 참조 학습 자동 수정 (v1.7.4)**            |
 | **태스크 수동 관리**          | **`/agile run` / `/agile done`** | **태스크별 실행 계획서 + 완료 보고서 생성**      |
-| **완전 자동화 (전문가)**      | `/auto-orchestrate`              | 의존성 분석 기반 전체 자동 실행 (체크포인트 X)   |
+| **UI 정밀 검증**              | **`/agile auto` (DDD 모드)**     | **스크린샷/데모 페이지 자동 검증 (v1.7.4)**      |
 | 태스크 배치 실행 (체크포인트) | `superpowers:executing-plans`    | 사람 체크포인트 포함 배치 실행                   |
 
-> **💡 권장 워크플로우**: 안전한 진행을 위해 **`/agile auto`** (신규) 또는 **`/agile iterate`** (수정)를 최우선으로 고려하세요.
+> **💡 권장 워크플로우**: 안전한 진행을 위해 **`/agile auto`** (신규) 또는 **`/agile iterate`** (수정)를 최우선으로 고려하세요. 초대량 프로젝트는 **`--ultra-thin`** 옵션을 활용하세요.
 
 ### 🔍 검증 및 품질 (Verification & Quality)
 
