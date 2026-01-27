@@ -1,11 +1,33 @@
 ---
 name: quality-auditor
-description: 코드 품질, 기획 정합성, 코딩 컨벤션 준수 여부를 감사하고 TestSprite를 통해 기술적 오류를 검출합니다. /audit, "코드 검토", "품질 검사" 트리거.
+description: Phase 완료/배포 전 종합 품질 감사. 기획 정합성 + DDD 검증 + 테스트 + 브라우저 검증을 수행합니다. /audit 트리거.
+version: 2.0.0
+updated: 2026-01-27
 ---
 
-# 🕵️ Quality Auditor (Code & Design Review Agent)
+# 🕵️ Quality Auditor (배포 전 종합 감사)
 
-> **목적**: 구현된 프로덕트가 기획 문서(PRD, TRD)와 코딩 컨벤션을 완벽히 준수하는지 검증하고, 잠재적 버그를 찾아 수정 지침을 제공합니다.
+> **목적**: Phase 완료 또는 배포 전에 **기획 문서 대비 종합 품질 감사**를 수행합니다.
+>
+> **⚠️ 바이브랩스킬과의 역할 분담:**
+> | 스킬 | 시점 | 범위 |
+> |------|------|------|
+> | `/code-review` | 태스크/기능 완료 시 | 코드 리뷰 (2단계) |
+> | `/evaluation` | Phase 완료 시 | 메트릭 측정 + 품질 게이트 |
+> | **`/audit` (이 스킬)** | **배포 전** | **기획 정합성 + DDD + 테스트 + 브라우저 검증** |
+> | `/multi-ai-review` | 심층 검토 필요 시 | 3개 AI 협업 리뷰 |
+>
+> **v2.0.0 업데이트**: MCP 의존성 제거, 기본 도구만으로 동작하도록 개선
+
+---
+
+## 🔧 MCP 의존성
+
+| MCP | 필수 여부 | 용도 |
+|-----|-----------|------|
+| `playwright` | ⚠️ 선택적 | 브라우저 검증 (없으면 스킵) |
+
+> **MCP 없이도 동작**: 테스트 실행은 기본 명령어(`npm test`, `pytest`)를 사용합니다.
 
 ---
 
@@ -22,14 +44,14 @@ description: 코드 품질, 기획 정합성, 코딩 컨벤션 준수 여부를 
 ```
 1. 기획 문서 존재 확인
 2. 컨텍스트 로딩 (기준 문서 읽기)
-3. **2단계 리뷰 프로세스 (Two-Stage Review) - v1.7.4**
+3. **2단계 리뷰 프로세스 (Two-Stage Review)**
    - Stage 1: Spec Compliance (요구사항 & 비즈니스 로직)
    - Stage 2: Code Quality (품질, 보안, 성능)
-4. **DDD (Demo-Driven Development) 검증 - v1.7.4**
-5. 동적 검증 (TestSprite 실행)
-6. UI/UX 브라우저 검증 (Chrome Browser/Screenshot 활용)
+4. **DDD (Demo-Driven Development) 검증**
+5. **동적 검증 (테스트 실행)** ← v2.0 변경: 기본 명령어 사용
+6. UI/UX 브라우저 검증 (선택적, playwright MCP 있을 때)
 7. 품질 리포트 작성
-8. 수정 지침 제공 (RALPH 패턴 권장)
+8. 수정 지침 제공 (스킬 연동 권장)
 ```
 
 ---
@@ -40,7 +62,7 @@ description: 코드 품질, 기획 정합성, 코딩 컨벤션 준수 여부를 
 
 ```bash
 # 기획 문서 존재 확인
-ls docs/planning/*.md
+ls docs/planning/*.md 2>/dev/null
 ```
 
 **필수 문서 체크리스트:**
@@ -73,7 +95,7 @@ docs/planning/02-trd.md        # 기술 스택 및 아키텍처
 docs/planning/07-coding-convention.md  # 코드 스타일
 ```
 
-### 3단계: 2단계 리뷰 (Two-Stage Review) - v1.7.4
+### 3단계: 2단계 리뷰 (Two-Stage Review)
 
 #### Stage 1: Spec Compliance Review (명세 준수)
 - **요구사항 일치**: PRD 핵심 기능이 코드에 정확히 구현되었는가?
@@ -85,52 +107,80 @@ docs/planning/07-coding-convention.md  # 코드 스타일
 - **보안 (Guardrails)**: API Key 노출, SQL Injection 등 보안 취약점이 없는가?
 - **성능 (Vercel Review)**: 불필요한 리렌더링이나 워터폴 페칭이 없는가?
 
-### 4단계: DDD (Demo-Driven Development) 검증 - v1.7.4
+### 4단계: DDD (Demo-Driven Development) 검증
+
 - **데모 페이지**: 각 UI 태스크별로 독립적인 데모 페이지가 존재하는가?
 - **스크린샷 대조**: 데모 페이지의 상태별 렌더링 결과가 목업(`design/`)과 일치하는가?
 - **콘솔 무결성**: 데모 페이지 실행 시 브라우저 콘솔에 에러가 없는가?
 
-### 4단계: 동적 검증 (TestSprite 실행)
+### 5단계: 동적 검증 (테스트 실행) - v2.0 개선
 
-`TestSprite` MCP 도구를 사용하여 실제 오류를 찾아냅니다.
-
-````
-1. mcp_TestSprite_testsprite_bootstrap 실행
-   - projectPath: 프로젝트 루트 경로
-   - type: "backend" 또는 "frontend"
-   - testScope: "codebase"
-
-2. mcp_TestSprite_testsprite_generate_backend_test_plan 실행
-   - 품질 보증용 테스트 플랜 수립
-
-3. mcp_TestSprite_testsprite_generate_code_and_execute 실행
-   - 엣지 케이스를 포함한 테스트 실행
-
-4. 실패한 테스트 케이스 원인 분석
-
-### 5단계: UI/UX 브라우저 검증 (agent-browser 활용)
-
-`agent-browser`를 사용하여 실제 렌더링 결과와 런타임 상태를 감사합니디.
+**MCP 없이 기본 테스트 명령어를 사용합니다:**
 
 ```bash
-# 1. 실제 페이지 접속 및 구조 확인
-agent-browser open http://localhost:3000
-agent-browser snapshot -i
+# 1. 프로젝트 타입 감지
+ls package.json pyproject.toml requirements.txt 2>/dev/null
 
-# 2. 콘솔 에러 유무 확인 (🔴 Critical 에러 체크)
-agent-browser console
+# 2. 테스트 실행 (프로젝트 타입에 따라)
+```
 
-# 3. 디자인 정합성 확인 (스크린샷)
-agent-browser screenshot debug_ui.png
-````
+| 프로젝트 타입 | 테스트 명령어 | 커버리지 |
+|---------------|---------------|----------|
+| **Node.js** | `npm test` 또는 `npm run test` | `npm run test:coverage` |
+| **Python** | `pytest` | `pytest --cov` |
+| **Python (Poetry)** | `poetry run pytest` | `poetry run pytest --cov` |
+| **Monorepo** | `pnpm test` 또는 `turbo test` | - |
+
+**테스트 결과 분석:**
+
+```bash
+# 실패한 테스트 확인
+npm test 2>&1 | grep -E "(FAIL|Error|failed)"
+
+# 또는
+pytest 2>&1 | grep -E "(FAILED|ERROR)"
+```
+
+**테스트 검증 체크리스트:**
+
+- [ ] 모든 테스트가 통과하는가?
+- [ ] 테스트 커버리지가 80% 이상인가?
+- [ ] 핵심 비즈니스 로직에 대한 테스트가 있는가?
+- [ ] 엣지 케이스 테스트가 있는가?
+
+### 6단계: UI/UX 브라우저 검증 (선택적)
+
+> **⚠️ playwright MCP가 설정된 경우에만 실행**
+
+```bash
+# MCP 확인
+cat .mcp.json 2>/dev/null | grep -q "playwright"
+```
+
+**playwright MCP 있을 때:**
+
+```
+mcp__playwright__browser_navigate → http://localhost:3000
+mcp__playwright__browser_screenshot → audit_screenshot.png
+mcp__playwright__browser_console_messages → 콘솔 에러 확인
+```
+
+**playwright MCP 없을 때:**
+
+```
+⚠️ 브라우저 검증 스킵 (playwright MCP 미설정)
+
+수동으로 다음을 확인하세요:
+1. 브라우저에서 http://localhost:3000 접속
+2. 개발자 도구 → Console 탭에서 에러 확인
+3. design/ 폴더의 목업과 실제 화면 비교
+```
 
 **브라우저 감사 체크리스트:**
 
 - [ ] 디자인 시스템(`05-design-system.md`)의 색상, 폰트, 간격이 정확히 구현되었는가?
 - [ ] 반응형 레이아웃이 Mobile/Desktop 뷰포트에서 깨지지 않는가?
 - [ ] 사용자 흐름(`03-user-flow.md`)대로 인터랙션이 부드럽게 동작하는가?
-
-```
 
 ---
 
@@ -139,19 +189,19 @@ agent-browser screenshot debug_ui.png
 ### 1. 품질 요약 (Quality Score)
 
 ```
-
 ┌─────────────────────────────────────────┐
-│ 📊 품질 감사 결과 │
+│ 📊 품질 감사 결과                        │
 ├─────────────────────────────────────────┤
-│ 총점: 85/100 │
-│ 판정: ⚠️ CAUTION │
-│ │
-│ ✅ 기능 정합성: 95% │
-│ ✅ 아키텍처: 90% │
-│ ⚠️ 컨벤션: 75% │
-│ ⚠️ 코드 품질: 80% │
+│ 총점: 85/100                            │
+│ 판정: ⚠️ CAUTION                        │
+│                                         │
+│ ✅ 기능 정합성: 95%                      │
+│ ✅ 아키텍처: 90%                         │
+│ ⚠️ 컨벤션: 75%                          │
+│ ⚠️ 코드 품질: 80%                       │
+│ ✅ 테스트: 통과 (커버리지 82%)           │
+│ ⚠️ 브라우저: 스킵 (MCP 미설정)          │
 └─────────────────────────────────────────┘
-
 ```
 
 **판정 기준:**
@@ -174,31 +224,20 @@ agent-browser screenshot debug_ui.png
 ### 3. 잘된 점 (Positive Feedback)
 
 ```
-
 ✅ 잘 구현된 부분:
 
 - Repository Pattern이 일관되게 적용되어 있습니다. (TRD 준수)
 - 모든 API 엔드포인트에 적절한 HTTP 상태 코드가 사용되었습니다.
 - 테스트 커버리지가 80% 이상입니다.
-
 ```
 
 ### 4. 수정 지침 (Action Items)
 
-| #   | 우선순위 | 작업                       | 예상 시간 | 담당               |
-| --- | -------- | -------------------------- | --------- | ------------------ |
-| 1   | 🔴       | API 키를 환경변수로 이동   | 10분      | backend-specialist |
-| 2   | 🟠       | 이메일 중복 체크 로직 추가 | 30분      | backend-specialist |
-| 3   | 🟡       | 에러 메시지 형식 통일      | 20분      | backend-specialist |
-
-**필요시 수정용 TASKS.md 생성 제안:**
-
-```
-
-수정 사항이 많습니다.
-/tasks-generator analyze 를 실행하여 수정용 TASKS.md를 생성할까요?
-
-````
+| #   | 우선순위 | 작업                       | 담당               |
+| --- | -------- | -------------------------- | ------------------ |
+| 1   | 🔴       | API 키를 환경변수로 이동   | backend-specialist |
+| 2   | 🟠       | 이메일 중복 체크 로직 추가 | backend-specialist |
+| 3   | 🟡       | 에러 메시지 형식 통일      | backend-specialist |
 
 ---
 
@@ -214,7 +253,7 @@ agent-browser screenshot debug_ui.png
       "header": "감사 후 조치",
       "options": [
         {
-          "label": "수정 태스크 생성",
+          "label": "⭐ [권장] 수정 태스크 생성",
           "description": "/tasks-generator analyze로 수정용 TASKS.md 생성"
         },
         {
@@ -234,8 +273,69 @@ agent-browser screenshot debug_ui.png
     }
   ]
 }
-````
+```
 
 ---
 
-**Last Updated**: 2026-01-21
+## 🔗 스킬 연동
+
+감사 결과에 따라 **자동으로 적합한 스킬을 권장**합니다:
+
+| 감사 결과 | 권장 스킬 | 설명 |
+|-----------|-----------|------|
+| **Spec 불일치** | `/agile iterate` | 요구사항 맞춰 수정 |
+| **코드 품질 이슈** | `/code-review` → 수정 → 재감사 | 2단계 리뷰 후 수정 |
+| **보안 취약점** | `/guardrails` 검토 | 보안 패턴 확인 |
+| **성능 이슈** | `/vercel-review` | 프론트엔드 성능 최적화 |
+| **테스트 실패** | `/systematic-debugging` | 근본 원인 분석 |
+| **심층 검토 필요** | `/multi-ai-review` | Claude + Gemini + GLM 3중 검증 |
+
+---
+
+## 🔄 감사 후 워크플로우
+
+```
+/audit 실행
+    ↓
+┌─────────────────────────────────────────┐
+│ 결과 판정                                │
+├─────────────────────────────────────────┤
+│ ✅ PASS (90+)    → 배포 승인             │
+│ ⚠️ CAUTION (70-89) → 경미한 수정 필요   │
+│ ❌ FAIL (70 미만) → 주요 수정 필요       │
+└─────────────────────────────────────────┘
+    ↓
+┌─────────────────────────────────────────┐
+│ 이슈 유형별 대응                         │
+├─────────────────────────────────────────┤
+│ Spec 불일치  → /agile iterate           │
+│ 품질 이슈    → /code-review             │
+│ 보안 이슈    → /guardrails              │
+│ 성능 이슈    → /vercel-review           │
+│ 대량 수정   → /tasks-generator analyze  │
+└─────────────────────────────────────────┘
+    ↓
+재감사 (/audit)
+    ↓
+배포 ✅
+```
+
+---
+
+## 📊 감사 히스토리 (선택적)
+
+감사 결과를 `docs/reports/audit-{date}.md`에 저장하면 품질 추이를 추적할 수 있습니다.
+
+```markdown
+## Audit History
+
+| 날짜 | 총점 | 판정 | 주요 이슈 | 조치 |
+|------|------|------|-----------|------|
+| 2026-01-27 | 85 | CAUTION | 컨벤션 75% | /agile iterate |
+| 2026-01-26 | 72 | CAUTION | 보안 이슈 | /guardrails 검토 |
+| 2026-01-25 | 91 | PASS | - | 배포 |
+```
+
+---
+
+**Last Updated**: 2026-01-27 (v2.0.0 - MCP 의존성 제거, 기본 도구 사용)

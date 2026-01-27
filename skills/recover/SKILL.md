@@ -1,11 +1,19 @@
 ---
 name: recover
 description: CLI 중단 후 미완료 작업을 식별하고 재개합니다. /recover, "작업 복구", "중단된 작업" 트리거.
+version: 1.9.0
+updated: 2026-01-27
 ---
 
 # 🔄 Recover Skill
 
 > CLI 다운, 네트워크 끊김, 또는 에이전트 오류로 인해 중단된 작업을 **자동으로 탐지하고 복구**하는 스킬입니다.
+>
+> **⚠️ 바이브랩스킬에는 없는 고유 기능:**
+> - 바이브랩스킬의 `/auto-orchestrate --resume`은 **orchestrate 상태만** 복구
+> - **이 스킬은 모든 유형의 중단된 작업을 탐지**하고 적절한 복구 경로를 안내
+>
+> **v1.9.0 업데이트**: 바이브랩스킬과의 역할 분담 명확화, 범용 복구 허브 역할 강조
 
 ---
 
@@ -52,7 +60,26 @@ description: CLI 중단 후 미완료 작업을 식별하고 재개합니다. /r
 - 현재 대화와 유사한 주제의 이전 대화가 있는지 검색합니다.
 - 관련 대화가 있다면 해당 대화 ID와 요약을 보고합니다.
 
-### 3️⃣ 프로젝트 폴더 점검
+### 3️⃣ Git Worktree 상태 점검 (v1.8.0)
+
+**대상**: Git Worktree 및 브랜치 상태
+
+```bash
+# Worktree 상태 확인
+git worktree list
+
+# 미병합 브랜치 확인
+git branch --no-merged main
+```
+
+| 상태 | 설명 | 권장 조치 |
+|------|------|-----------|
+| **Orphan Worktree** | 브랜치 없는 고아 Worktree | `git worktree remove` |
+| **Unmerged Branch** | Phase 완료 후 미병합 | `git merge` → `/auto-orchestrate --resume` |
+| **Dirty Worktree** | 커밋되지 않은 변경 | `git stash` 또는 커밋 후 진행 |
+| **Conflict State** | 병합 충돌 중 | 충돌 해결 후 진행 |
+
+### 4️⃣ 프로젝트 폴더 점검
 
 **대상**: 사용자가 제공한 경로 또는 현재 활성 문서 경로
 
@@ -65,13 +92,23 @@ description: CLI 중단 후 미완료 작업을 식별하고 재개합니다. /r
 | TODO 마커      | `// TODO:`, `# FIXME:` 등 미완성 표시           |
 | 빈 함수        | `pass`, `throw new Error('Not implemented')` 등 |
 
-### 4️⃣ 복구 제안 (Recovery Proposal)
+### 5️⃣ 복구 제안 (Recovery Proposal) - v1.8.0
 
-점검 결과를 바탕으로 다음 중 하나를 제안합니다:
+점검 결과를 바탕으로 **상황별 맞춤 복구 전략**을 제안합니다:
 
-- **A. 자동 복구**: 탐지된 미완료 항목을 즉시 이어서 완료합니다.
+| 상황 | 권장 조치 | 자동 실행 여부 |
+|------|-----------|----------------|
+| **Orchestrate 중단** | `/auto-orchestrate --resume` | ⭐ 자동 권장 |
+| **Ultra-Thin 중단** | `/auto-orchestrate --ultra-thin --resume` | ⭐ 자동 권장 |
+| **Agile 중단** | `/agile status` → `/agile run {next-task}` | 수동 확인 |
+| **Worktree 문제** | Git 정리 후 재개 | 수동 확인 |
+| **코드 불완전** | 파일별 수정 안내 | 수동 확인 |
+
+#### 복구 옵션
+
+- **A. 자동 복구 (권장)**: 탐지된 미완료 항목을 즉시 이어서 완료합니다.
 - **B. 수동 선택**: 복구할 항목 목록을 보여주고 사용자가 선택하도록 합니다.
-- **C. 새로 시작**: 이전 작업을 무시하고 새 작업을 시작합니다.
+- **C. 새로 시작**: `/workflow`를 실행하여 처음부터 워크플로우를 다시 안내받습니다.
 
 ---
 
@@ -110,4 +147,26 @@ description: CLI 중단 후 미완료 작업을 식별하고 재개합니다. /r
 
 ---
 
-**Last Updated**: 2026-01-23
+## 🔗 다음 스킬 연동 (v1.8.0)
+
+복구 완료 후 상황에 따라 다음 스킬을 자동 제안합니다:
+
+| 복구 결과 | 다음 스킬 | 설명 |
+|-----------|-----------|------|
+| Orchestrate 재개 | `/auto-orchestrate --resume` | 중단된 Phase부터 계속 |
+| 개별 태스크 재개 | `/agile run {task-id}` | 특정 태스크 실행 |
+| 품질 점검 필요 | `/code-review` 또는 `/audit` | 복구 후 검증 |
+| 새로 시작 | `/workflow` | 워크플로우 처음부터 |
+
+---
+
+## 💡 예방 팁 (Prevention Tips)
+
+1. **자주 커밋하기**: 작은 단위로 커밋하면 복구가 쉬워집니다.
+2. **TASKS.md 활용**: `/tasks-generator`로 태스크를 문서화하면 진행 상황 추적이 용이합니다.
+3. **상태 파일 확인**: `.claude/orchestrate-state.json`이 자동으로 진행 상황을 저장합니다.
+4. **Worktree 사용**: Phase별 Worktree를 사용하면 작업 분리가 명확해집니다.
+
+---
+
+**Last Updated**: 2026-01-27 (v1.9.0 - VibeLab Skill Integration & Universal Recovery Hub)
