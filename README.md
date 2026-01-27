@@ -1,6 +1,6 @@
 # 🌌 Inflo's VibeLab Extension
 
-**VibeLab Skills 위에서 더 안전하고 정밀한 구현을 돕는 확장 스킬 팩 v2.0**
+**VibeLab Skills 위에서 더 안전하고 정밀한 구현을 돕는 확장 스킬 팩 v2.1**
 
 > ⚠️ **필수 요구사항**: 이 확장팩은 [VibeLab Skills](https://vibelabs.kr/skills/new)이 설치된 환경에서만 정상 작동합니다.
 
@@ -20,10 +20,11 @@ VibeLab의 `/socrates`와 `/tasks-generator`가 만들어낸 기획 문서와 �
 | **우리스킬** | `/agile` | 레이어별 스프린트 (1~30개) | 소규모 구현 |
 | **우리스킬** | `/recover` | 범용 복구 허브 | 작업 중단 시 |
 | **우리스킬** | `/audit` | 배포 전 종합 감사 | 배포 전 |
+| **우리스킬** | `/multi-ai-review` | Claude+Gemini+GLM 3중 검증 | 머지/배포 전 |
 
 ---
 
-## 🚀 확장 스킬 (Extension Skills) v2.0
+## 🚀 확장 스킬 (Extension Skills) v2.1
 
 ### 1. 🧭 Workflow Guide (`/workflow`) - 메타 허브
 
@@ -88,6 +89,21 @@ VibeLab의 `/socrates`와 `/tasks-generator`가 만들어낸 기획 문서와 �
   - 품질 점수 산출 (90+: PASS, 70-89: CAUTION, <70: FAIL)
 - **MCP 의존성**: playwright (선택적, 브라우저 검증 시)
 
+### 5. 🤖 Multi-AI Review (`/multi-ai-review`)
+
+**Claude + Gemini + GLM 3개 AI 협업 리뷰**
+
+```
+/multi-ai-review
+```
+
+- **역할**: 머지/배포 전 심층 코드 검토
+- **특징**:
+  - 3단계 리뷰: Spec Compliance(GLM) → Creative Review(Gemini) → Integration(Claude)
+  - 자동화된 리뷰-반박-합의 프로세스
+  - 최종 합의 리포트 생성
+- **MCP 의존성**: gemini, glm (필수)
+
 ---
 
 ## 🔧 MCP 의존성
@@ -98,8 +114,9 @@ VibeLab의 `/socrates`와 `/tasks-generator`가 만들어낸 기획 문서와 �
 | `/agile` | playwright (선택적) | 스크린샷 캡처 시에만 |
 | `/recover` | 없음 | 기본 도구만 사용 |
 | `/audit` | playwright (선택적) | 브라우저 검증 시에만 |
+| `/multi-ai-review` | gemini, glm (필수) | 3개 AI 협업 필요 |
 
-> **모든 스킬이 MCP 없이도 핵심 기능은 동작합니다.**
+> **대부분의 스킬이 MCP 없이도 핵심 기능은 동작합니다.** (`/multi-ai-review` 제외)
 
 ---
 
@@ -155,11 +172,12 @@ chmod +x ./scripts/install-unix.sh && ./scripts/install-unix.sh
 
 ```
 vibelab-extension/
-├── skills/                    # 우리스킬 (4개)
+├── skills/                    # 우리스킬 (5개)
 │   ├── workflow-guide/        # v2.0.0 - 메타 허브
 │   ├── agile/                 # v1.9.0 - 레이어별 스프린트
 │   ├── recover/               # v1.9.0 - 범용 복구
-│   └── quality-auditor/       # v2.0.0 - 종합 감사
+│   ├── quality-auditor/       # v2.0.0 - 종합 감사
+│   └── multi-ai-review/       # v1.0.0 - 3개 AI 협업 리뷰
 ├── scripts/                   # 설치 스크립트
 │   ├── install-windows.ps1
 │   └── install-unix.sh
@@ -173,7 +191,8 @@ vibelab-extension/
 
 | 버전 | 날짜 | 주요 변경 |
 |------|------|-----------|
-| **v2.0.0** | 2026-01-27 | MCP 의존성 제거, workflow-guide 메타 허브 강화 |
+| **v2.1.0** | 2026-01-28 | multi-ai-review 스킬 추가 (5개 스킬) |
+| v2.0.0 | 2026-01-27 | MCP 의존성 제거, workflow-guide 메타 허브 강화 |
 | v1.9.0 | 2026-01-27 | 바이브랩스킬과 역할 분담 명확화 |
 | v1.8.0 | 2026-01-26 | 스킬 간 연동 강화, 복구 워크플로우 추가 |
 | v1.7.4 | 2026-01-25 | 2단계 리뷰, DDD 검증 추가 |
