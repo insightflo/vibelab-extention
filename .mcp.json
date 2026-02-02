@@ -1,11 +1,13 @@
 {
     "mcpServers": {
         "gemini": {
-            "command": "npx",
+            "command": "node",
             "args": [
-                "-y",
-                "@anthropic-ai/gemini-mcp@latest"
+                "/Users/kwak/Projects/ai/gemini-oauth-mcp/dist/index.js"
             ],
+            "env": {
+                "LOG_LEVEL": "info"
+            },
             "defer_loading": true
         },
         "context7": {
