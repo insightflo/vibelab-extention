@@ -1,19 +1,21 @@
 ---
 name: workflow-guide
 description: 여러 플러그인 중 상황에 맞는 워크플로우를 안내합니다. /workflow, "어떤 스킬을 써야 해?", "워크플로우 추천" 트리거.
-version: 2.0.0
-updated: 2026-01-27
+version: 2.1.0
+updated: 2026-02-02
 ---
 
 # 🧭 워크플로우 선택 가이드 (Meta Hub)
 
-> **목적**: 31개 스킬(바이브랩 26개 + 우리스킬 5개) 중 현재 상황에 가장 적합한 스킬을 **단 하나만** 추천하는 메타 허브입니다.
+> **목적**: 39개 스킬(바이브랩 34개 + 우리스킬 5개) 중 현재 상황에 가장 적합한 스킬을 **단 하나만** 추천하는 메타 허브입니다.
 >
 > **⚠️ 핵심 원칙**: 이 스킬은 **코드를 작성하지 않습니다**. 오직 **상황 진단 → 스킬 추천 → 사용자 확인**만 수행합니다.
+>
+> **v2.1.0 업데이트**: vibelab v1.8.1 신규 skill 반영 (trinity, reverse, sync, cost-router, desktop-bridge, neurion, eureka, powerqa)
 
 ---
 
-## 📊 전체 스킬 카탈로그 (31개)
+## 📊 전체 스킬 카탈로그 (39개)
 
 ### 우리스킬 (5개) - 프로젝트 확장
 
@@ -25,17 +27,25 @@ updated: 2026-01-27
 | **`/audit`** | `/audit`, "품질 검사" | 배포 전 종합 감사 (DDD/테스트/브라우저) |
 | **`/multi-ai-review`** | `/multi-ai-review`, "심층 리뷰" | Claude+Gemini+GLM 3중 검증 |
 
-### 바이브랩스킬 (26개) - 핵심 기능
+### 바이브랩스킬 (34개) - 핵심 기능
+
+#### 💡 아이디어 & 브레인스토밍 (v1.8.1 NEW!)
+
+| 스킬 | 용도 |
+|------|------|
+| `/neurion` | AI 브레인스토밍 (Osborn 4원칙, 4 AI 페르소나) |
+| `/eureka` | 추상적 아이디어 → 구체적 MVP 변환 |
 
 #### 🎨 기획 & 설계
 
 | 스킬 | 용도 |
 |------|------|
-| `/socrates` | 1:1 기획 컨설팅 (21개 질문 → 6개 문서 생성) |
+| `/socrates` | 1:1 기획 컨설팅 (21개 질문 → 7개 문서 생성) |
 | `/screen-spec` | 화면별 상세 명세 (YAML v2.0) |
 | `/design-linker` | 목업 이미지 ↔ TASKS.md 연결 |
 | `/movin-design-system` | 다크모드 + 네온 디자인 시스템 |
 | `/paperfolio-design` | 클린/볼드/모던 포트폴리오 디자인 |
+| `/reverse` | 기존 코드 → 명세 역추출 **(v1.8.1 NEW!)** |
 
 #### 📝 태스크 & 목표
 
@@ -52,6 +62,8 @@ updated: 2026-01-27
 | `/ultra-thin-orchestrate` | 초경량 오케스트레이션 | 50~200개 |
 | `/ralph-loop` | 자율 반복 루프 (완료까지) | 에러 반복 시 |
 | `/project-bootstrap` | 에이전트 팀 + 프로젝트 셋업 | 초기 1회 |
+| `/desktop-bridge` | Desktop↔CLI 하이브리드 워크플로우 **(v1.8.1 NEW!)** |
+| `/cost-router` | AI 비용 40-70% 절감 라우팅 **(v1.8.1 NEW!)** |
 
 #### 🔍 검증 & 품질
 
@@ -59,6 +71,9 @@ updated: 2026-01-27
 |------|------|------|
 | `/code-review` | 태스크/기능 완료 | 2단계 리뷰 (Spec→Quality) |
 | `/evaluation` | Phase 완료 | 메트릭 측정 + 품질 게이트 |
+| `/trinity` | Phase 완료/PR 전 | 五柱 철학 기반 품질 평가 **(v1.8.1 NEW!)** |
+| `/powerqa` | 테스트 자동화 | 자동 QA 사이클링 **(v1.8.1 NEW!)** |
+| `/sync` | 개발 중간 | 명세-코드 동기화 검증 **(v1.8.1 NEW!)** |
 | `/vercel-review` | 프론트엔드 | React/Next.js 성능 최적화 |
 | `/verification-before-completion` | 모든 완료 선언 전 | 검증 명령어 실행 필수 |
 | `/systematic-debugging` | 버그 발생 시 | 4단계 근본 원인 분석 |
@@ -122,18 +137,23 @@ cat .claude/orchestrate-state.json 2>/dev/null | head -5
 # 5. Git 상태 확인
 git status --short 2>/dev/null | head -10
 git worktree list 2>/dev/null
+
+# 6. specs/ 폴더 확인 (v1.8.1)
+ls specs/screens/*.yaml 2>/dev/null
 ```
 
 ### 2단계: 상황별 진단 결과 매핑
 
 | 진단 결과 | 프로젝트 단계 | 권장 스킬 |
 |-----------|---------------|-----------|
-| docs/planning/ 없음 | 🌱 **아이디어** | `/socrates` |
+| 아이디어만 있음 | 💡 **브레인스토밍** | `/neurion` → `/socrates` |
+| docs/planning/ 없음 | 🌱 **기획 시작** | `/socrates` |
+| 기존 코드만 있음 (명세 없음) | 🔄 **역추출 필요** | `/reverse` |
 | 기획 있음 + 06-tasks.md 없음 | 📋 **기획 완료** | `/tasks-generator` |
 | 태스크 있음 + 코드 없음 | 🚀 **구현 준비** | `/agile auto` (≤30) 또는 `/auto-orchestrate` (>30) |
 | 코드 있음 + 미완료 태스크 | 🔨 **구현 중** | `/agile iterate` 또는 `/auto-orchestrate --resume` |
 | orchestrate-state.json 존재 | 🔄 **자동화 중단** | `/recover` → `/auto-orchestrate --resume` |
-| 모든 태스크 완료 | ✅ **검증 필요** | `/code-review` → `/audit` |
+| 모든 태스크 완료 | ✅ **검증 필요** | `/trinity` → `/audit` |
 | Git 충돌/dirty 상태 | ⚠️ **복구 필요** | `/recover` |
 
 ### 3단계: 맞춤 추천 + 사용자 확인
@@ -168,18 +188,20 @@ git worktree list 2>/dev/null
 
 ---
 
-## 🎯 핵심 의사결정 트리
+## 🎯 핵심 의사결정 트리 (v2.1)
 
 ```
 시작
 │
 ├─ 작업 중단됨? ─────────────────────── YES → /recover
 │
-├─ 기획 문서 있음? ─────────────────── NO → /socrates
-│                                            (전문가: /socrates expert)
-│                                            (검증: /socrates Roast me)
+├─ 아이디어만 있음? ─────────────────── YES → /neurion → /socrates
 │
-├─ TASKS.md 있음? ──────────────────── NO → /tasks-generator
+├─ 기획 문서 있음? ─────────────────── NO
+│   │                                      └─ 신규 프로젝트: /socrates
+│   │                                      └─ 기존 코드만: /reverse
+│   │
+│   └─ YES → TASKS.md 있음? ─────────── NO → /tasks-generator
 │                                            (UI 상세화: /screen-spec)
 │
 ├─ 코드베이스 있음?
@@ -190,12 +212,15 @@ git worktree list 2>/dev/null
 │   │
 │   ├─ 수정/변경? ──────────────────── /agile iterate
 │   │
+│   ├─ 명세 드리프트? ─────────────── /sync
+│   │
 │   └─ 버그 수정? ──────────────────── /systematic-debugging
 │
 └─ 구현 완료?
     │
     ├─ 기능 단위 ────────────────────── /code-review
-    ├─ Phase 완료 ───────────────────── /evaluation → /audit
+    ├─ Phase 완료 ───────────────────── /trinity → /evaluation → /audit
+    ├─ QA 자동화 ────────────────────── /powerqa
     └─ 배포 전 ──────────────────────── /multi-ai-review → /verification-before-completion
 ```
 
@@ -210,15 +235,20 @@ git worktree list 2>/dev/null
 | **30~50개** | `/auto-orchestrate` | 완전 자동화, Phase 병렬 실행 |
 | **50~200개** | `/ultra-thin-orchestrate` | 초경량 모드, 컨텍스트 최적화 |
 | **에러 반복** | `/ralph-loop` | 자기 참조 학습, 완료까지 반복 |
+| **QA 사이클** | `/powerqa` | 테스트→검증→수정 자동 반복 |
 
 ---
 
-## 🔗 스킬 간 연동 매트릭스 (v2.0)
+## 🔗 스킬 간 연동 매트릭스 (v2.1)
 
 ### 성공 경로 (Happy Path)
 
 ```
-/socrates
+/neurion (아이디어 폭발)
+    ↓
+/socrates (기획 문서화)
+    ↓
+/screen-spec (화면 명세)
     ↓
 /tasks-generator
     ↓
@@ -227,9 +257,14 @@ git worktree list 2>/dev/null
 │ • /agile auto (≤30)                 │
 │ • /auto-orchestrate (30~50)         │
 │ • /ultra-thin-orchestrate (50~200)  │
+│                                     │
+│ ┌─ 개발 중간: /sync (명세 동기화) ─┐ │
+│ └─ 비용 최적화: /cost-router ─────┘ │
 └─────────────────────────────────────┘
     ↓
 /code-review (기능 단위)
+    ↓
+/trinity (五柱 품질 평가) ← NEW!
     ↓
 /evaluation (Phase 완료)
     ↓
@@ -242,6 +277,34 @@ git worktree list 2>/dev/null
 배포 ✅
 ```
 
+### 레거시 프로젝트 경로 (v1.8.1 NEW!)
+
+```
+기존 코드베이스
+    ↓
+/reverse (코드 → 명세 역추출)
+    ↓
+specs/screens/*.yaml 생성
+    ↓
+/socrates (기획 보완)
+    ↓
+/tasks-generator
+    ↓
+일반 워크플로우...
+```
+
+### 하이브리드 워크플로우 (v1.8.1 NEW!)
+
+```
+[Claude Desktop]              [Claude Code CLI]
+     │                              │
+/neurion, /socrates           /auto-orchestrate
+/screen-spec                        │
+     │                              │
+     └──── /desktop-bridge ─────────┘
+           (GitHub Issue 연동)
+```
+
 ### 실패 복구 경로
 
 | 실패 상황 | 복구 스킬 | 다음 단계 |
@@ -250,6 +313,8 @@ git worktree list 2>/dev/null
 | 테스트 실패 | `/systematic-debugging` | `/agile iterate` |
 | 리뷰 실패 | `/agile iterate` | `/code-review` |
 | 품질 게이트 실패 | `/tasks-generator analyze` | 수정 태스크 생성 |
+| Trinity 점수 낮음 | `/trinity` 피드백 반영 | `/code-review` |
+| 명세-코드 불일치 | `/sync` | 수정 후 재검증 |
 | 기획 불명확 | `/socrates` (재실행) | `/tasks-generator` |
 
 ---
@@ -258,11 +323,16 @@ git worktree list 2>/dev/null
 
 ```
 "뭐부터 해야 할지 모르겠어"     → /workflow
+"아이디어 브레인스토밍"         → /neurion
 "아이디어를 정리하고 싶어"      → /socrates
+"기존 코드가 있는데 명세가 없어" → /reverse
 "기획서 있는데 코딩 시작해줘"   → /agile auto
 "이 기능 수정해줘"              → /agile iterate
+"명세랑 코드가 맞는지 확인해줘" → /sync
 "버그 있어"                     → /systematic-debugging
 "코드 검토해줘"                 → /code-review
+"품질 점수 측정해줘"            → /trinity
+"QA 자동화해줘"                 → /powerqa
 "품질 검사해줘"                 → /audit
 "작업이 중단됐어"               → /recover
 "대규모 프로젝트야"             → /auto-orchestrate --ultra-thin
@@ -273,21 +343,24 @@ git worktree list 2>/dev/null
 "리서치 해줘"                   → /deep-research
 "React 코드 작성"               → /react-19
 "FastAPI 백엔드"                → /fastapi-latest
+"AI 비용 줄이고 싶어"           → /cost-router
+"Desktop과 CLI 연동"            → /desktop-bridge
 ```
 
 ---
 
-## 🔒 품질 게이트 체크리스트
+## 🔒 품질 게이트 체크리스트 (v2.1)
 
 모든 구현 완료 후 반드시 거쳐야 하는 게이트:
 
 | 게이트 | 필수 스킬 | 통과 기준 |
 |--------|-----------|-----------|
 | **G1: 기능 검증** | `/code-review` | 2단계 리뷰 통과 |
-| **G2: Phase 검증** | `/evaluation` | 품질 메트릭 80% 이상 |
-| **G3: 종합 감사** | `/audit` | 기획 정합성 + DDD + TestSprite |
-| **G4: 심층 검토** | `/multi-ai-review` | 3개 AI 합의 (선택적) |
-| **G5: 최종 검증** | `/verification-before-completion` | 검증 명령어 성공 |
+| **G2: 五柱 평가** | `/trinity` | Trinity Score 70+ **(NEW!)** |
+| **G3: Phase 검증** | `/evaluation` | 품질 메트릭 80% 이상 |
+| **G4: 종합 감사** | `/audit` | 기획 정합성 + DDD + TestSprite |
+| **G5: 심층 검토** | `/multi-ai-review` | 3개 AI 합의 (선택적) |
+| **G6: 최종 검증** | `/verification-before-completion` | 검증 명령어 성공 |
 
 ---
 
@@ -305,6 +378,12 @@ A: `/recover`를 실행하여 중단된 작업을 복구하거나, `/systematic-
 ### Q: 대규모 프로젝트는 어떻게 관리하나요?
 A: 50개 이상의 태스크는 `/ultra-thin-orchestrate`를 사용하세요. 컨텍스트 최적화로 안정적인 자동화가 가능합니다.
 
+### Q: 기존 코드가 있는데 명세가 없어요
+A: `/reverse`를 실행하여 코드에서 명세를 역추출한 후, `/socrates`로 보완하세요.
+
+### Q: AI 비용이 너무 많이 나와요
+A: `/cost-router`가 태스크 복잡도에 따라 적절한 모델을 자동 선택하여 40-70% 비용을 절감합니다.
+
 ---
 
-**Last Updated**: 2026-01-27 (v2.0.0 - Complete Skill Catalog & Decision Tree)
+**Last Updated**: 2026-02-02 (v2.1.0 - vibelab v1.8.1 Integration)
