@@ -304,7 +304,7 @@
 
 > **목표**: 기존 스킬과의 연동 및 워크플로우 통합
 
-### [ ] P7-T1: workflow-guide 업데이트
+### [x] P7-T1: workflow-guide 업데이트
 - **담당**: backend-specialist
 - **산출물**: `skills/workflow-guide/SKILL.md` 업데이트
 - **내용**:
@@ -313,7 +313,7 @@
 - **참조**: 기존 workflow-guide 스킬
 - **Worktree**: `worktree/phase-7-integration`
 
-### [ ] P7-T2: project-bootstrap 연동
+### [x] P7-T2: project-bootstrap 연동
 - **담당**: backend-specialist
 - **산출물**: 연동 확인 문서
 - **내용**:
@@ -321,7 +321,7 @@
   - 도메인 설정 자동화
 - **의존성**: P7-T1
 
-### [ ] P7-T3: 기존 우리스킬 연동 확인
+### [x] P7-T3: 기존 우리스킬 연동 확인
 - **담당**: test-specialist
 - **산출물**: 연동 테스트 결과
 - **검증 항목**:
