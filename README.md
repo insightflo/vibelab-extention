@@ -1,70 +1,95 @@
-# 🌌 Inflo's VibeLab Extension
+# Inflo's VibeLab Extension
 
-**VibeLab Skills 위에서 더 안전하고 정밀한 구현을 돕는 확장 스킬 팩 v2.2**
+**VibeLab Skills 위에서 더 안전하고 정밀한 구현을 돕는 확장 스킬 팩 v3.0**
 
-> ⚠️ **필수 요구사항**: 이 확장팩은 [VibeLab Skills v1.8.1+](https://vibelabs.kr/skills/new)이 설치된 환경에서만 정상 작동합니다.
+> **필수 요구사항**: 이 확장팩은 [VibeLab Skills v1.9.2+](https://vibelabs.kr/skills/new)가 설치된 환경에서만 정상 작동합니다.
 
-VibeLab의 `/socrates`와 `/tasks-generator`가 만들어낸 기획 문서와 태스크 목록을 기반으로, **레이어별 점진적 구현**, **맥락 복구**, **품질 감사**, **워크플로우 라우팅** 등 고급 엔지니어링 기능을 제공합니다.
+VibeLab의 `/socrates`와 `/tasks-generator`가 만들어낸 기획 문서와 태스크 목록을 기반으로, **레이어별 점진적 구현**, **맥락 복구**, **품질 감사**, **워크플로우 라우팅**, 그리고 **v3.0에서 새로 추가된 Claude Project Team 시스템**을 제공합니다.
 
 ---
 
-## 📊 바이브랩스킬 vs 우리스킬 (역할 분담)
+## v3.0 NEW: Claude Project Team
+
+**대규모 프로젝트를 위한 AI 에이전트 팀 협업 시스템**
+
+```
+claude-project-team/
+├── agents/       # 9개 에이전트 (PM, Architect, Designer, QA, DBA...)
+├── hooks/        # 10개 자동화 Hook (권한, 품질, 영향도 검증)
+├── skills/       # 5개 유지보수 스킬 (/impact, /deps, /changelog...)
+└── templates/    # 프로토콜, ADR, Contract 템플릿
+```
+
+### 주요 기능
+
+| 구성요소 | 개수 | 역할 |
+|----------|------|------|
+| **에이전트** | 9개 | Project Manager, Chief Architect, QA Manager 등 역할 기반 협업 |
+| **Hook** | 10개 | 파일 수정 전후 자동 검증 (권한, 표준, 영향도, 품질) |
+| **스킬** | 5개 | 유지보수 분석 (/impact, /deps, /changelog, /coverage, /architecture) |
+| **템플릿** | 7개 | 에이전트 간 통신 프로토콜, ADR, Interface Contract |
+
+### 설치
+
+```bash
+cd claude-project-team
+./install.sh --global    # 전역 설치
+./install.sh --local     # 프로젝트별 설치
+```
+
+자세한 내용은 [claude-project-team/README.md](./claude-project-team/README.md) 참조
+
+---
+
+## 바이브랩스킬 vs 우리스킬 (역할 분담)
 
 | 구분 | 스킬 | 역할 | 시점 |
 |------|------|------|------|
-| **바이브랩** | `/neurion` | AI 브레인스토밍 **(v1.8.1 NEW!)** | 아이디어 발굴 |
+| **바이브랩** | `/neurion` | AI 브레인스토밍 | 아이디어 발굴 |
 | **바이브랩** | `/socrates` | 기획 컨설팅 | 프로젝트 시작 |
 | **바이브랩** | `/tasks-generator` | 태스크 생성 | 기획 완료 후 |
 | **바이브랩** | `/auto-orchestrate` | 완전 자동화 (30~200개) | 대규모 구현 |
-| **바이브랩** | `/trinity` | 五柱 코드 품질 평가 **(v1.8.1 NEW!)** | Phase 완료 |
+| **바이브랩** | `/trinity` | 五柱 코드 품질 평가 | Phase 완료 |
 | **바이브랩** | `/code-review` | 2단계 코드 리뷰 | 기능 완료 |
-| **바이브랩** | `/reverse` | 코드→명세 역추출 **(v1.8.1 NEW!)** | 레거시 프로젝트 |
-| **바이브랩** | `/sync` | 명세-코드 동기화 검증 **(v1.8.1 NEW!)** | 개발 중간 |
-| **바이브랩** | `/cost-router` | AI 비용 40-70% 절감 **(v1.8.1 NEW!)** | 자동 적용 |
-| **우리스킬** | `/workflow` | **메타 허브** - 스킬 라우팅 | 언제든지 |
+| **우리스킬** | `/workflow` | **메타 허브** - 44개 스킬 라우팅 | 언제든지 |
 | **우리스킬** | `/agile` | 레이어별 스프린트 (1~30개) | 소규모 구현 |
 | **우리스킬** | `/recover` | 범용 복구 허브 | 작업 중단 시 |
 | **우리스킬** | `/audit` | 배포 전 종합 감사 | 배포 전 |
 | **우리스킬** | `/multi-ai-review` | Claude+Gemini+GLM 3중 검증 | 머지/배포 전 |
+| **우리스킬** | `/impact` | 파일 변경 영향도 분석 **(v3.0 NEW)** | 수정 전 |
+| **우리스킬** | `/deps` | 의존성 그래프, 순환 감지 **(v3.0 NEW)** | 리팩토링 전 |
+| **우리스킬** | `/changelog` | 변경 이력 조회 **(v3.0 NEW)** | 추적 시 |
+| **우리스킬** | `/coverage` | 테스트 커버리지 조회 **(v3.0 NEW)** | 품질 확인 |
+| **우리스킬** | `/architecture` | 아키텍처 맵 시각화 **(v3.0 NEW)** | 구조 파악 |
 
 ---
 
-## 🚀 확장 스킬 (Extension Skills) v2.2
+## 확장 스킬 (Extension Skills) v3.0
 
-### 1. 🧭 Workflow Guide (`/workflow`) - 메타 허브
+### 기존 스킬 (5개)
 
-**39개 스킬 중 최적의 스킬을 자동 추천**
+#### 1. Workflow Guide (`/workflow`) - 메타 허브
+
+**44개 스킬 중 최적의 스킬을 자동 추천** (v3.0에서 39개 → 44개)
 
 ```
 /workflow
 ```
 
-- **역할**: 프로젝트 상태 자동 진단 → 최적 스킬 1~2개 추천
-- **특징**:
-  - 바이브랩스킬 34개 + 우리스킬 5개 전체 카탈로그 관리
-  - v1.8.1 신규 skill 완전 지원 (neurion, trinity, reverse, sync, cost-router, desktop-bridge, eureka, powerqa)
-  - 태스크 규모별 구현 스킬 선택 가이드
-  - 품질 게이트 체크리스트 (6단계)
-- **MCP 의존성**: 없음
+- 바이브랩스킬 + 우리스킬 전체 카탈로그 관리
+- 유지보수 워크플로우 추가 (버그 수정, 리팩토링, 건강 점검)
+- Claude Project Team Hook/Agent 시스템 연동
 
-### 2. 🏃 Agile Sprint Master (`/agile`)
+#### 2. Agile Sprint Master (`/agile`)
 
 **레이어별 점진적 구현 (Skeleton → Muscles → Skin)**
 
 ```bash
-/agile auto          # 신규 프로젝트 전체 레이어 자동 실행
+/agile auto          # 전체 레이어 자동 실행
 /agile iterate "변경사항"  # 영향받는 레이어만 스마트 수정
-/agile status        # 현재 스프린트 상태 확인
 ```
 
-- **역할**: 1~30개 태스크를 사용자와 협업하며 체크포인트 기반 구현
-- **특징**:
-  - 🦴 Skeleton: 전체 레이아웃, 더미 데이터
-  - 💪 Muscles: 실제 데이터 연동, 비즈니스 로직
-  - ✨ Skin: 디자인 시스템 정밀 적용, 애니메이션
-- **MCP 의존성**: playwright (선택적, 스크린샷 시)
-
-### 3. 🔄 Context Recover (`/recover`)
+#### 3. Context Recover (`/recover`)
 
 **모든 유형의 중단된 작업 복구**
 
@@ -72,14 +97,7 @@ VibeLab의 `/socrates`와 `/tasks-generator`가 만들어낸 기획 문서와 �
 /recover
 ```
 
-- **역할**: CLI 중단, 네트워크 끊김, 에이전트 오류 후 작업 복구
-- **특징**:
-  - orchestrate-state.json 기반 자동화 재개
-  - Git Worktree 상태 점검
-  - 미완료 코드 파일 탐지
-- **MCP 의존성**: 없음
-
-### 4. 🕵️ Quality Auditor (`/audit`)
+#### 4. Quality Auditor (`/audit`)
 
 **배포 전 기획 정합성 + 동적 검증**
 
@@ -87,16 +105,7 @@ VibeLab의 `/socrates`와 `/tasks-generator`가 만들어낸 기획 문서와 �
 /audit
 ```
 
-- **역할**: Phase 완료 또는 배포 전 종합 품질 감사
-- **특징**:
-  - 2단계 리뷰 (Spec Compliance → Code Quality)
-  - DDD (Demo-Driven Development) 검증
-  - 기본 테스트 명령어 실행 (`npm test`, `pytest`)
-  - 품질 점수 산출 (90+: PASS, 70-89: CAUTION, <70: FAIL)
-  - `/trinity`, `/sync`, `/powerqa` 연동 **(v2.1 NEW!)**
-- **MCP 의존성**: playwright (선택적, 브라우저 검증 시)
-
-### 5. 🤖 Multi-AI Review (`/multi-ai-review`)
+#### 5. Multi-AI Review (`/multi-ai-review`)
 
 **Claude + Gemini + GLM 3개 AI 협업 리뷰**
 
@@ -104,80 +113,91 @@ VibeLab의 `/socrates`와 `/tasks-generator`가 만들어낸 기획 문서와 �
 /multi-ai-review
 ```
 
-- **역할**: 머지/배포 전 심층 코드 검토
-- **특징**:
-  - 3단계 리뷰: Spec Compliance(GLM) → Creative Review(Gemini) → Integration(Claude)
-  - 자동화된 리뷰-반박-합의 프로세스
-  - 최종 합의 리포트 생성
-- **MCP 의존성**: gemini, glm (필수)
+### v3.0 NEW: 유지보수 스킬 (5개)
 
----
+#### 6. Impact Analyzer (`/impact`)
 
-## 🆕 VibeLab v1.8.1 신규 스킬
-
-이 확장팩은 VibeLab v1.8.1의 신규 스킬들과 완전히 통합됩니다:
-
-| 스킬 | 설명 | 연동 |
-|------|------|------|
-| `/neurion` | AI 브레인스토밍 (Osborn 4원칙) | `/workflow`에서 추천 |
-| `/eureka` | 아이디어 → MVP 변환 | `/workflow`에서 추천 |
-| `/trinity` | 五柱 코드 품질 평가 (眞善美孝永) | `/audit`에서 연동 |
-| `/reverse` | 코드 → 명세 역추출 | `/workflow`에서 추천 |
-| `/sync` | 명세-코드 동기화 검증 | `/audit`에서 연동 |
-| `/cost-router` | AI 비용 40-70% 절감 | 자동 적용 |
-| `/desktop-bridge` | Desktop↔CLI 하이브리드 | `/workflow`에서 추천 |
-| `/powerqa` | 자동 QA 사이클링 | `/audit`에서 연동 |
-
----
-
-## 🔧 MCP 의존성
-
-| 스킬 | 필수 MCP | 비고 |
-|------|----------|------|
-| `/workflow` | 없음 | 기본 도구만 사용 |
-| `/agile` | playwright (선택적) | 스크린샷 캡처 시에만 |
-| `/recover` | 없음 | 기본 도구만 사용 |
-| `/audit` | playwright (선택적) | 브라우저 검증 시에만 |
-| `/multi-ai-review` | gemini, glm (필수) | 3개 AI 협업 필요 |
-
-> **대부분의 스킬이 MCP 없이도 핵심 기능은 동작합니다.** (`/multi-ai-review` 제외)
-
----
-
-## 🛠️ 설치 방법 (Quick Start)
-
-### 0단계: VibeLab 먼저 설치
-
-https://vibelabs.kr/skills/new
-
-### 1단계: 본 확장팩 설치
-
-**🪟 Windows (PowerShell)**
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\install-windows.ps1
-```
-
-**🍎 macOS / 🐧 Linux**
+**파일 변경 전 영향도 분석**
 
 ```bash
-chmod +x ./scripts/install-unix.sh && ./scripts/install-unix.sh
+/impact src/services/user_service.py
+```
+
+- 영향 받는 파일 목록
+- 관련 테스트 파일
+- 위험도 평가 (CRITICAL/HIGH/MEDIUM/LOW)
+- 권장 검토자
+
+#### 7. Dependency Graph (`/deps`)
+
+**의존성 그래프 시각화 및 순환 감지**
+
+```bash
+/deps                    # 전체 도메인 의존성
+/deps --cycles           # 순환 의존성만
+/deps src/api/ --tree    # 의존성 트리
+```
+
+#### 8. Changelog Query (`/changelog`)
+
+**변경 이력 조회 및 필터링**
+
+```bash
+/changelog                      # 최근 변경
+/changelog --domain user        # 도메인별
+/changelog --type fix           # 유형별
+/changelog --stats              # 통계
+```
+
+#### 9. Coverage Map (`/coverage`)
+
+**테스트 커버리지 조회**
+
+```bash
+/coverage                    # 전체 커버리지
+/coverage --uncovered        # 미커버 영역
+/coverage --threshold 80     # 80% 미만 파일
+```
+
+#### 10. Architecture Map (`/architecture`)
+
+**아키텍처 맵 시각화**
+
+```bash
+/architecture              # 전체 아키텍처
+/architecture domains      # 도메인 구조
+/architecture api          # API 카탈로그
 ```
 
 ---
 
-## 🤝 권장 워크플로우 (v2.2)
+## Claude Project Team Hook 시스템
+
+자동으로 코드 품질을 검증하는 10개의 Hook:
+
+| Hook | 이벤트 | 역할 |
+|------|--------|------|
+| `permission-checker` | PreToolUse | 에이전트 역할별 파일 접근 권한 검증 |
+| `pre-edit-impact-check` | PreToolUse | 파일 수정 전 영향도 분석 |
+| `risk-area-warning` | PreToolUse | CRITICAL/HIGH 위험 영역 경고 |
+| `standards-validator` | PostToolUse | 코딩 컨벤션, 아키텍처 표준 검증 |
+| `design-validator` | PostToolUse | 디자인 시스템 준수 검증 |
+| `interface-validator` | PostToolUse | 도메인 간 Interface Contract 검증 |
+| `cross-domain-notifier` | PostToolUse | 스펙 변경 시 관련 도메인 알림 |
+| `quality-gate` | PostToolUse | Phase 완료 전 품질 검증 |
+| `architecture-updater` | PostToolUse | 아키텍처 문서 자동 업데이트 |
+| `changelog-recorder` | PostToolUse | 변경 이력 자동 기록 |
+
+---
+
+## 권장 워크플로우 (v3.0)
 
 ```
 시작
   │
   ├─ "뭐부터 해야 해?" ──────────── /workflow (우리스킬)
   │
-  ├─ 아이디어 브레인스토밍 ─────── /neurion (바이브랩) ← NEW!
-  │
-  ├─ 아이디어만 있음 ────────────── /socrates (바이브랩)
-  │
-  ├─ 기존 코드만 있음 ────────────── /reverse (바이브랩) ← NEW!
+  ├─ 아이디어 브레인스토밍 ─────── /neurion (바이브랩)
   │
   ├─ 기획 완료 ──────────────────── /tasks-generator (바이브랩)
   │
@@ -185,13 +205,15 @@ chmod +x ./scripts/install-unix.sh && ./scripts/install-unix.sh
   │   ├─ 1~30개 태스크 ──────────── /agile auto (우리스킬)
   │   └─ 30~200개 태스크 ─────────── /auto-orchestrate (바이브랩)
   │
-  ├─ 개발 중간 검증 ───────────────── /sync (바이브랩) ← NEW!
+  ├─ 유지보수/리팩토링 ───────────── NEW!
+  │   ├─ 수정 전 영향도 ──────────── /impact (우리스킬)
+  │   ├─ 의존성 확인 ────────────── /deps (우리스킬)
+  │   └─ 변경 이력 ───────────────── /changelog (우리스킬)
   │
-  ├─ 기능 수정 ──────────────────── /agile iterate (우리스킬)
-  │
-  ├─ 코드 리뷰 ──────────────────── /code-review (바이브랩)
-  │
-  ├─ 품질 평가 ──────────────────── /trinity (바이브랩) ← NEW!
+  ├─ 품질 확인
+  │   ├─ 테스트 커버리지 ─────────── /coverage (우리스킬)
+  │   ├─ 아키텍처 구조 ──────────── /architecture (우리스킬)
+  │   └─ 품질 평가 ───────────────── /trinity (바이브랩)
   │
   ├─ 배포 전 감사 ───────────────── /audit (우리스킬)
   │
@@ -200,39 +222,96 @@ chmod +x ./scripts/install-unix.sh && ./scripts/install-unix.sh
 
 ---
 
-## 📁 프로젝트 구조
+## 프로젝트 구조
 
 ```
 vibelab-extension/
-├── skills/                    # 우리스킬 (5개)
-│   ├── workflow-guide/        # v2.1.0 - 메타 허브 (v1.8.1 통합)
-│   ├── agile/                 # v1.9.0 - 레이어별 스프린트
-│   ├── recover/               # v1.9.0 - 범용 복구
-│   ├── quality-auditor/       # v2.1.0 - 종합 감사 (trinity/sync 연동)
-│   └── multi-ai-review/       # v1.0.0 - 3개 AI 협업 리뷰
-├── scripts/                   # 설치 스크립트
+├── skills/                       # 우리스킬 (10개)
+│   ├── workflow-guide/           # v3.0.0 - 메타 허브 (44개 스킬)
+│   ├── agile/                    # v1.9.0 - 레이어별 스프린트
+│   ├── recover/                  # v1.9.0 - 범용 복구
+│   ├── quality-auditor/          # v2.1.0 - 종합 감사
+│   ├── multi-ai-review/          # v1.0.0 - 3개 AI 협업 리뷰
+│   └── coverage/                 # v2.2.0 - 테스트 커버리지 (NEW)
+│
+├── claude-project-team/          # v1.0.0 - AI 팀 협업 시스템 (NEW)
+│   ├── install.sh                # 설치 스크립트
+│   ├── README.md                 # 상세 문서
+│   ├── hooks/                    # 10개 Hook
+│   ├── agents/                   # 9개 에이전트
+│   ├── skills/                   # 4개 유지보수 스킬
+│   │   ├── impact/
+│   │   ├── deps/
+│   │   ├── changelog/
+│   │   └── architecture/
+│   ├── templates/                # 프로토콜, ADR, Contract
+│   ├── examples/                 # ecommerce, saas 예제
+│   └── docs/                     # 설치, 사용, 유지보수 문서
+│
+├── scripts/                      # 설치 스크립트
 │   ├── install-windows.ps1
 │   └── install-unix.sh
-├── LICENSE                    # MIT License
-└── README.md                  # 이 파일
+│
+├── LICENSE                       # MIT License
+└── README.md                     # 이 파일
 ```
 
 ---
 
-## 📋 버전 히스토리
+## 설치 방법
 
-| 버전 | 날짜 | 주요 변경 |
-|------|------|-----------|
-| **v2.2.0** | 2026-02-02 | VibeLab v1.8.1 통합 (trinity, reverse, sync, cost-router, desktop-bridge, neurion, eureka, powerqa) |
-| v2.1.0 | 2026-01-28 | multi-ai-review 스킬 추가 (5개 스킬) |
-| v2.0.0 | 2026-01-27 | MCP 의존성 제거, workflow-guide 메타 허브 강화 |
-| v1.9.0 | 2026-01-27 | 바이브랩스킬과 역할 분담 명확화 |
-| v1.8.0 | 2026-01-26 | 스킬 간 연동 강화, 복구 워크플로우 추가 |
-| v1.7.4 | 2026-01-25 | 2단계 리뷰, DDD 검증 추가 |
+### 1. VibeLab 먼저 설치
+
+https://vibelabs.kr/skills/new
+
+### 2. 확장팩 설치
+
+**macOS / Linux**
+
+```bash
+chmod +x ./scripts/install-unix.sh && ./scripts/install-unix.sh
+```
+
+**Windows (PowerShell)**
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\install-windows.ps1
+```
+
+### 3. Claude Project Team 설치 (선택)
+
+```bash
+cd claude-project-team
+./install.sh --global    # 전역 설치 (권장)
+```
 
 ---
 
-## 📄 라이선스
+## MCP 의존성
+
+| 스킬 | 필수 MCP | 비고 |
+|------|----------|------|
+| `/workflow` | 없음 | 기본 도구만 사용 |
+| `/agile` | playwright (선택) | 스크린샷 시에만 |
+| `/recover` | 없음 | 기본 도구만 사용 |
+| `/audit` | playwright (선택) | 브라우저 검증 시에만 |
+| `/multi-ai-review` | gemini, glm (필수) | 3개 AI 협업 필요 |
+| `/impact`, `/deps`, `/changelog`, `/coverage`, `/architecture` | 없음 | 기본 도구만 사용 |
+
+---
+
+## 버전 히스토리
+
+| 버전 | 날짜 | 주요 변경 |
+|------|------|-----------|
+| **v3.0.0** | 2026-02-08 | **Claude Project Team 추가** - 9 에이전트, 10 Hook, 5 유지보수 스킬, workflow-guide v3.0 |
+| v2.2.0 | 2026-02-02 | VibeLab v1.8.1 통합 (trinity, reverse, sync, cost-router) |
+| v2.1.0 | 2026-01-28 | multi-ai-review 스킬 추가 |
+| v2.0.0 | 2026-01-27 | MCP 의존성 제거, workflow-guide 강화 |
+
+---
+
+## 라이선스
 
 MIT License - Copyright (c) 2026 Inflo Team
 
