@@ -205,7 +205,7 @@
 
 > **목표**: 유지보수 관련 스킬 구현
 
-### [ ] P5-T1: /impact 스킬 구현
+### [x] P5-T1: /impact 스킬 구현
 - **담당**: backend-specialist
 - **산출물**: `skills/impact/SKILL.md`
 - **기능**:
@@ -215,7 +215,7 @@
 - **참조**: 설계 문서 Section 12.2
 - **Worktree**: `worktree/phase-5-skills`
 
-### [ ] P5-T2: /deps 스킬 구현
+### [x] P5-T2: /deps 스킬 구현
 - **담당**: backend-specialist
 - **산출물**: `skills/deps/SKILL.md`
 - **기능**:
@@ -225,7 +225,7 @@
 - **참조**: 설계 문서 Section 12.4
 - **의존성**: P5-T1
 
-### [ ] P5-T3: /changelog 스킬 구현
+### [x] P5-T3: /changelog 스킬 구현
 - **담당**: backend-specialist
 - **산출물**: `skills/changelog/SKILL.md`
 - **기능**:
@@ -235,7 +235,7 @@
 - **참조**: 설계 문서 Section 12.5
 - **의존성**: P5-T1
 
-### [ ] P5-T4: /coverage 스킬 구현
+### [x] P5-T4: /coverage 스킬 구현
 - **담당**: test-specialist
 - **산출물**: `skills/coverage/SKILL.md`
 - **기능**:
@@ -245,7 +245,7 @@
 - **참조**: 설계 문서 Section 12.6
 - **의존성**: P5-T1
 
-### [ ] P5-T5: /architecture 스킬 구현
+### [x] P5-T5: /architecture 스킬 구현
 - **담당**: backend-specialist
 - **산출물**: `skills/architecture/SKILL.md`
 - **기능**:
