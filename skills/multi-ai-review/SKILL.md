@@ -2,11 +2,15 @@
 name: multi-ai-review
 description: Claude + Gemini + GLM 멀티-AI 리뷰 오케스트레이션. 3단계 리뷰 시스템으로 Spec Compliance(GLM) -> Creative Review(Gemini) -> Integration(Claude) 수행.
 trigger: /review, "리뷰해줘", "검토해줘", "코드 리뷰", "기획서 리뷰", "아키텍처 리뷰"
+version: 2.2.0
+updated: 2026-02-07
 ---
 
 # Multi-AI Review 스킬 (완전 자동화)
 
 > **Agentic Design Pattern**: MCP 프로토콜을 통한 멀티 에이전트 자동 협업
+>
+> **v2.2.0 업데이트**: vibelab v1.9.2 연동 - Gemini OAuth MCP, Hook 시스템 통합
 
 ## 개요
 
@@ -15,22 +19,26 @@ Claude(오케스트레이터) + Gemini(MCP) + GLM(MCP)가 **완전 자동화**�
 
 ---
 
-## MCP 소스 설정
+## MCP 소스 설정 (v2.2.0 업데이트)
 
-### 필수 환경 변수
+### Gemini MCP (OAuth 인증) - 권장
+
+```bash
+# OAuth 로그인 (API 키 불필요)
+mcp__gemini__auth_login
+```
+
+### GLM MCP (API 키)
 
 ```bash
 # ~/.zshrc 또는 ~/.bashrc에 추가
-export GEMINI_API_KEY="your_gemini_api_key"
 export GLM_API_KEY="your_glm_api_key"
 ```
 
 ### API Key 발급 방법
 
-- **Gemini**: [Google AI Studio](https://makersuite.google.com/app/apikey)
+- **Gemini**: OAuth 인증 사용 (API 키 불필요, `mcp__gemini__auth_login` 실행)
 - **GLM**: [智谱AI Open Platform](https://open.bigmodel.cn/)
-
-자세한 설정은 `sources/gemini/guide.md`, `sources/glm/guide.md` 참조
 
 ---
 
@@ -179,13 +187,13 @@ if (conflicts.length > 0) {
 | `mcp__glm__consult_architecture` | 아키텍처 상담 | Round 3 |
 | `mcp__glm__design_system_architecture` | 시스템 설계 | 필요시 |
 
-### Gemini MCP 도구
+### Gemini MCP 도구 (v2.2.0 - OAuth 기반)
 
 | 도구 | 용도 | 사용 단계 |
 |------|------|----------|
-| `mcp__gemini__gemini_generate_text` | 텍스트 리뷰 | Round 1, 2, 3 |
-| `mcp__gemini__gemini_analyze_image` | 다이어그램 분석 | 아키텍처 리뷰 |
-| `mcp__gemini__gemini_count_tokens` | 토큰 계산 | 사전 검증 |
+| `mcp__gemini__generate_content` | 텍스트 리뷰 | Round 1, 2, 3 |
+| `mcp__gemini__chat` | 대화형 리뷰 | Cross-Review |
+| `mcp__gemini__auth_status` | 인증 상태 확인 | 사전 검증 |
 
 ---
 
@@ -320,15 +328,25 @@ Final:
 
 ---
 
-## 필수 조건
+## 필수 조건 (v2.2.0)
 
-1. **환경 변수 설정**
-   - `GEMINI_API_KEY`: Google AI Studio에서 발급
+1. **Gemini MCP (OAuth 인증)**
+   - `mcp__gemini__auth_login` 실행하여 Google 계정 연동
+   - API 키 불필요 (OAuth 토큰 자동 관리)
+
+2. **GLM MCP (API 키)**
    - `GLM_API_KEY`: 智谱AI에서 발급
 
-2. **MCP 서버 활성화**
-   - `.mcp.json`에 gemini, glm 서버 설정 필요
-   - Craft Agent 재시작 필요
+3. **MCP 서버 활성화**
+   - `~/.claude.json`에 gemini 서버 등록 (`claude mcp add -s user`)
+   - Claude Code 재시작
+
+### 🪝 Hook 연동 (v1.9.2)
+
+| Hook | 효과 |
+|------|------|
+| `skill-router` | `/review`, `/multi-ai-review` 키워드 자동 감지 |
+| `post-edit-analyzer` | 리뷰 후 수정 시 보안 패턴 자동 검사 |
 
 ---
 

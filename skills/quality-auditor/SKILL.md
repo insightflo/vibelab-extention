@@ -1,8 +1,8 @@
 ---
 name: quality-auditor
 description: Phase 완료/배포 전 종합 품질 감사. 기획 정합성 + DDD 검증 + 테스트 + 브라우저 검증을 수행합니다. /audit 트리거.
-version: 2.1.0
-updated: 2026-02-02
+version: 2.2.0
+updated: 2026-02-07
 ---
 
 # 🕵️ Quality Auditor (배포 전 종합 감사)
@@ -13,12 +13,12 @@ updated: 2026-02-02
 > | 스킬 | 시점 | 범위 |
 > |------|------|------|
 > | `/code-review` | 태스크/기능 완료 시 | 코드 리뷰 (2단계) |
-> | `/trinity` | Phase 완료/PR 전 | 五柱 철학 기반 품질 평가 **(v1.8.1 NEW!)** |
+> | `/trinity` | Phase 완료/PR 전 | 五柱 철학 기반 품질 평가 |
 > | `/evaluation` | Phase 완료 시 | 메트릭 측정 + 품질 게이트 |
 > | **`/audit` (이 스킬)** | **배포 전** | **기획 정합성 + DDD + 테스트 + 브라우저 검증** |
 > | `/multi-ai-review` | 심층 검토 필요 시 | 3개 AI 협업 리뷰 |
 >
-> **v2.1.0 업데이트**: vibelab v1.8.1 연동 (trinity, sync, powerqa)
+> **v2.2.0 업데이트**: vibelab v1.9.2 Hook 시스템 연동
 
 ---
 
@@ -278,19 +278,27 @@ mcp__playwright__browser_console_messages → 콘솔 에러 확인
 
 ---
 
-## 🔗 스킬 연동 (v2.1)
+## 🔗 스킬 연동 (v2.2)
 
 감사 결과에 따라 **자동으로 적합한 스킬을 권장**합니다:
 
 | 감사 결과 | 권장 스킬 | 설명 |
 |-----------|-----------|------|
 | **Spec 불일치** | `/agile iterate` | 요구사항 맞춰 수정 |
-| **명세-코드 드리프트** | `/sync` | 명세와 코드 동기화 검증 **(v1.8.1 NEW!)** |
-| **코드 품질 이슈** | `/trinity` → `/code-review` → 재감사 | 五柱 평가 + 2단계 리뷰 **(v1.8.1 NEW!)** |
+| **명세-코드 드리프트** | `/sync` | 명세와 코드 동기화 검증 |
+| **코드 품질 이슈** | `/trinity` → `/code-review` → 재감사 | 五柱 평가 + 2단계 리뷰 |
 | **보안 취약점** | `/guardrails` 검토 | 보안 패턴 확인 |
 | **성능 이슈** | `/vercel-review` | 프론트엔드 성능 최적화 |
-| **테스트 실패** | `/powerqa` 또는 `/systematic-debugging` | 자동 QA 사이클링 **(v1.8.1 NEW!)** |
+| **테스트 실패** | `/powerqa` 또는 `/systematic-debugging` | 자동 QA 사이클링 |
 | **심층 검토 필요** | `/multi-ai-review` | Claude + Gemini + GLM 3중 검증 |
+
+### 🪝 Hook 연동 (v1.9.2)
+
+| Hook | 효과 |
+|------|------|
+| `skill-router` | `/audit` 키워드 자동 감지 → 스킬 즉시 로드 |
+| `post-edit-analyzer` | 감사 후 수정 시 보안/품질 패턴 자동 검사 |
+| `git-commit-checker` | 감사 통과 전 커밋 경고 |
 
 ---
 
@@ -340,4 +348,4 @@ mcp__playwright__browser_console_messages → 콘솔 에러 확인
 
 ---
 
-**Last Updated**: 2026-02-02 (v2.1.0 - vibelab v1.8.1 연동)
+**Last Updated**: 2026-02-07 (v2.2.0 - vibelab v1.9.2 Hook System Integration)

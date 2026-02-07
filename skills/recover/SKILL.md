@@ -1,8 +1,8 @@
 ---
 name: recover
 description: CLI 중단 후 미완료 작업을 식별하고 재개합니다. /recover, "작업 복구", "중단된 작업" 트리거.
-version: 1.9.0
-updated: 2026-01-27
+version: 2.2.0
+updated: 2026-02-07
 ---
 
 # 🔄 Recover Skill
@@ -13,7 +13,7 @@ updated: 2026-01-27
 > - 바이브랩스킬의 `/auto-orchestrate --resume`은 **orchestrate 상태만** 복구
 > - **이 스킬은 모든 유형의 중단된 작업을 탐지**하고 적절한 복구 경로를 안내
 >
-> **v1.9.0 업데이트**: 바이브랩스킬과의 역할 분담 명확화, 범용 복구 허브 역할 강조
+> **v2.2.0 업데이트**: vibelab v1.9.2 Hook 시스템 연동 (error-recovery-advisor, session-summary-saver)
 
 ---
 
@@ -147,7 +147,7 @@ git branch --no-merged main
 
 ---
 
-## 🔗 다음 스킬 연동 (v1.8.0)
+## 🔗 다음 스킬 연동 (v2.2.0)
 
 복구 완료 후 상황에 따라 다음 스킬을 자동 제안합니다:
 
@@ -155,8 +155,18 @@ git branch --no-merged main
 |-----------|-----------|------|
 | Orchestrate 재개 | `/auto-orchestrate --resume` | 중단된 Phase부터 계속 |
 | 개별 태스크 재개 | `/agile run {task-id}` | 특정 태스크 실행 |
-| 품질 점검 필요 | `/code-review` 또는 `/audit` | 복구 후 검증 |
+| 품질 점검 필요 | `/trinity` → `/code-review` 또는 `/audit` | 복구 후 검증 |
+| 테스트 실패 복구 | `/powerqa` | 자동 QA 사이클링 |
 | 새로 시작 | `/workflow` | 워크플로우 처음부터 |
+
+### 🪝 Hook 연동 (v1.9.2)
+
+| Hook | 효과 |
+|------|------|
+| `skill-router` | `/recover` 키워드 자동 감지 |
+| `error-recovery-advisor` | 에러 발생 시 자동 복구 제안 (KB 기반) |
+| `session-summary-saver` | 세션 종료 시 미완료 TODO 저장 → 다음 세션 복구 용이 |
+| `session-memory-loader` | 세션 시작 시 이전 상태 자동 로드 |
 
 ---
 
@@ -169,4 +179,4 @@ git branch --no-merged main
 
 ---
 
-**Last Updated**: 2026-01-27 (v1.9.0 - VibeLab Skill Integration & Universal Recovery Hub)
+**Last Updated**: 2026-02-07 (v2.2.0 - vibelab v1.9.2 Hook System Integration)
