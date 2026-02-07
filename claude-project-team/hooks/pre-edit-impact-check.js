@@ -739,6 +739,8 @@ function discoverProjectFiles(projectDir, maxDepth) {
 // 14. stdin/stdout Helpers (Claude Code Hook Protocol)
 // ---------------------------------------------------------------------------
 
+let _hookEventName = '';
+
 /**
  * Read JSON from stdin.
  * @returns {Promise<object>}
@@ -750,7 +752,9 @@ function readStdin() {
     process.stdin.on('data', (chunk) => { data += chunk; });
     process.stdin.on('end', () => {
       try {
-        resolve(data.trim() ? JSON.parse(data) : {});
+        const parsed = data.trim() ? JSON.parse(data) : {};
+        _hookEventName = parsed.hook_event_name || '';
+        resolve(parsed);
       } catch {
         resolve({});
       }
@@ -764,11 +768,9 @@ function readStdin() {
  * @param {string} context
  */
 function outputContext(context) {
-  process.stdout.write(JSON.stringify({
-    hookSpecificOutput: {
-      additionalContext: context
-    }
-  }));
+  const hookSpecificOutput = { additionalContext: context };
+  if (_hookEventName) hookSpecificOutput.hookEventName = _hookEventName;
+  process.stdout.write(JSON.stringify({ hookSpecificOutput }));
 }
 
 // ---------------------------------------------------------------------------
