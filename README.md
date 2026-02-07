@@ -51,7 +51,7 @@ cd claude-project-team
 | **바이브랩** | `/auto-orchestrate` | 완전 자동화 (30~200개) | 대규모 구현 |
 | **바이브랩** | `/trinity` | 五柱 코드 품질 평가 | Phase 완료 |
 | **바이브랩** | `/code-review` | 2단계 코드 리뷰 | 기능 완료 |
-| **우리스킬** | `/workflow` | **메타 허브** - 44개 스킬 라우팅 | 언제든지 |
+| **우리스킬** | `/workflow` | **메타 허브** - 51개 스킬 라우팅 | 언제든지 |
 | **우리스킬** | `/agile` | 레이어별 스프린트 (1~30개) | 소규모 구현 |
 | **우리스킬** | `/recover` | 범용 복구 허브 | 작업 중단 시 |
 | **우리스킬** | `/audit` | 배포 전 종합 감사 | 배포 전 |
@@ -70,7 +70,7 @@ cd claude-project-team
 
 #### 1. Workflow Guide (`/workflow`) - 메타 허브
 
-**44개 스킬 중 최적의 스킬을 자동 추천** (v3.0에서 39개 → 44개)
+**51개 스킬 중 최적의 스킬을 자동 추천** (바이브랩 35개 + Editor-K 6개 + 우리스킬 10개)
 
 ```
 /workflow
@@ -227,7 +227,7 @@ cd claude-project-team
 ```
 vibelab-extension/
 ├── skills/                       # 우리스킬 (10개)
-│   ├── workflow-guide/           # v3.0.0 - 메타 허브 (44개 스킬)
+│   ├── workflow-guide/           # v3.0.0 - 메타 허브 (51개 스킬)
 │   ├── agile/                    # v1.9.0 - 레이어별 스프린트
 │   ├── recover/                  # v1.9.0 - 범용 복구
 │   ├── quality-auditor/          # v2.1.0 - 종합 감사
