@@ -1,0 +1,592 @@
+# E-commerce Project Team Configuration
+# 이커머스 프로젝트 팀 구성 설정
+#
+# 프로젝트: ShopHub (온라인 쇼핑몰)
+# 타입: E-commerce
+# 기술 스택: FastAPI (Python) + React (TypeScript) + PostgreSQL
+
+---
+version: "1.0"
+
+project:
+  name: "ShopHub"
+  type: "ecommerce"
+  description: "B2C 온라인 쇼핑몰 플랫폼 - 사용자, 상품, 주문, 결제, 재고 관리"
+  owner: "Project Lead Name"
+  start_date: "2026-01-01"
+
+  tech_stack:
+    backend: "FastAPI (Python 3.11)"
+    frontend: "React 18 + TypeScript + TailwindCSS"
+    database: "PostgreSQL 15"
+    infrastructure: "Docker + Kubernetes"
+    messaging: "Kafka (비동기 이벤트)"
+    cache: "Redis"
+    search: "Elasticsearch"
+
+agents:
+  project-manager:
+    enabled: true
+    description: "ShopHub 전체 조율, 도메인 간 조정, 스프린트 관리"
+    model: "opus"
+    permissions:
+      - read_all_domains
+      - write_project_config
+      - approve_timeline
+      - resolve_conflicts
+    responsibilities:
+      - 스프린트 계획 및 관리
+      - 도메인 간 의존성 해결
+      - 이해관계자 커뮤니케이션
+      - 배포 스케줄 관리
+
+  chief-architect:
+    enabled: true
+    description: "기술 표준 정의, 아키텍처 VETO, 마이크로서비스 설계"
+    model: "opus"
+    permissions:
+      - read_all_domains
+      - write_standards
+      - veto_architecture
+      - approve_tech_decisions
+    responsibilities:
+      - 마이크로서비스 경계 정의
+      - API 게이트웨이 아키텍처
+      - 도메인 간 통신 표준 (REST, gRPC, Events)
+      - 캐싱 전략 (Redis)
+      - 확장성 검증
+
+  chief-designer:
+    enabled: true
+    description: "UI/UX 디자인 시스템, 브랜드 일관성"
+    model: "opus"
+    permissions:
+      - read_all_domains
+      - write_design_system
+      - review_ui_designs
+    responsibilities:
+      - 디자인 시스템 구축 및 유지
+      - 반응형 디자인 검증
+      - 사용자 경험 표준
+      - 접근성(WCAG 2.1) 준수 감시
+
+  qa-manager:
+    enabled: true
+    description: "통합 테스트, 품질 게이트, 릴리스 승인"
+    model: "opus"
+    permissions:
+      - read_all_domains
+      - approve_releases
+      - define_quality_standards
+      - veto_releases
+    responsibilities:
+      - E2E 테스트 시나리오 정의 (사용자 여정)
+      - 결제 플로우 검증
+      - 성능 테스트 (부하 테스트)
+      - 보안 취약점 스캔
+      - 릴리스 체크리스트 관리
+
+  dba:
+    enabled: true
+    description: "DB 설계, 성능 최적화, 데이터 일관성"
+    model: "opus"
+    permissions:
+      - read_all_domains
+      - write_db_standards
+      - approve_schema_changes
+      - manage_migrations
+    responsibilities:
+      - 데이터 모델 표준화
+      - 인덱싱 전략 및 쿼리 최적화
+      - 트랜잭션 격리 수준 정의
+      - 백업 및 복구 정책
+      - 데이터 마이그레이션 계획
+
+domains:
+  # 도메인 1: 사용자 관리
+  - name: "user"
+    display_name: "User Management (사용자 관리)"
+    description: "회원가입, 로그인, 프로필, 권한 관리"
+
+    lead: "User Part Leader"
+
+    team:
+      - role: "part-leader"
+        name: "User Part Leader"
+        description: "사용자 도메인 리더, 인증/권한 정책 결정"
+
+      - role: "domain-designer"
+        name: "User Domain Designer"
+        description: "데이터 모델, API 설계, 인증 흐름"
+
+      - role: "domain-developer"
+        name: "User Domain Developer"
+        description: "개발, 테스트 (vibelab orchestrator)"
+
+    dependencies: []  # User는 다른 도메인에 의존하지 않음
+
+    tech_stack:
+      - "FastAPI"
+      - "SQLAlchemy ORM"
+      - "JWT (JSON Web Token)"
+      - "OAuth2"
+      - "PostgreSQL"
+
+    path: "src/domains/user"
+
+    resources:
+      api_contract: "contracts/interfaces/user-api.yaml"
+      data_model: "docs/user/data-model.md"
+      readme: "src/domains/user/README.md"
+
+  # 도메인 2: 상품 관리
+  - name: "product"
+    display_name: "Product Management (상품 관리)"
+    description: "상품 조회, 검색, 필터링, 카테고리"
+
+    lead: "Product Part Leader"
+
+    team:
+      - role: "part-leader"
+        name: "Product Part Leader"
+        description: "상품 도메인 리더, 카탈로그 정책 결정"
+
+      - role: "domain-designer"
+        name: "Product Domain Designer"
+        description: "상품 데이터 모델, 검색 전략, API 설계"
+
+      - role: "domain-developer"
+        name: "Product Domain Developer"
+        description: "개발, 테스트 (vibelab orchestrator)"
+
+    dependencies:
+      - "inventory"  # 재고 정보 필요
+
+    tech_stack:
+      - "FastAPI"
+      - "Elasticsearch"
+      - "PostgreSQL"
+      - "Redis (캐싱)"
+
+    path: "src/domains/product"
+
+    resources:
+      api_contract: "contracts/interfaces/product-api.yaml"
+      data_model: "docs/product/data-model.md"
+      readme: "src/domains/product/README.md"
+
+  # 도메인 3: 주문 관리
+  - name: "order"
+    display_name: "Order Management (주문 관리)"
+    description: "주문 생성, 조회, 취소, 반품"
+
+    lead: "Order Part Leader"
+
+    team:
+      - role: "part-leader"
+        name: "Order Part Leader"
+        description: "주문 도메인 리더, 주문 정책 결정"
+
+      - role: "domain-designer"
+        name: "Order Domain Designer"
+        description: "주문 상태 머신, API 설계, 이벤트 정의"
+
+      - role: "domain-developer"
+        name: "Order Domain Developer"
+        description: "개발, 테스트 (vibelab orchestrator)"
+
+    dependencies:
+      - "user"      # 주문자 정보
+      - "product"   # 상품 정보
+      - "payment"   # 결제 처리
+      - "inventory" # 재고 차감
+
+    tech_stack:
+      - "FastAPI"
+      - "Kafka (주문 이벤트 발행)"
+      - "PostgreSQL"
+      - "SQLAlchemy"
+
+    path: "src/domains/order"
+
+    resources:
+      api_contract: "contracts/interfaces/order-api.yaml"
+      data_model: "docs/order/data-model.md"
+      readme: "src/domains/order/README.md"
+
+  # 도메인 4: 결제 관리
+  - name: "payment"
+    display_name: "Payment Management (결제 관리)"
+    description: "결제 처리, 결제 수단 관리, 영수증"
+
+    lead: "Payment Part Leader"
+
+    team:
+      - role: "part-leader"
+        name: "Payment Part Leader"
+        description: "결제 도메인 리더, 결제 정책 결정"
+
+      - role: "domain-designer"
+        name: "Payment Domain Designer"
+        description: "결제 흐름, PCI-DSS 준수 설계, API 설계"
+
+      - role: "domain-developer"
+        name: "Payment Domain Developer"
+        description: "개발, 테스트 (vibelab orchestrator)"
+
+    dependencies:
+      - "order"   # 주문 정보
+      - "user"    # 사용자 정보
+
+    tech_stack:
+      - "FastAPI"
+      - "PostgreSQL"
+      - "외부 결제 게이트웨이 (Stripe, PayPal, etc)"
+      - "Kafka (결제 이벤트)"
+
+    path: "src/domains/payment"
+
+    resources:
+      api_contract: "contracts/interfaces/payment-api.yaml"
+      data_model: "docs/payment/data-model.md"
+      readme: "src/domains/payment/README.md"
+
+  # 도메인 5: 재고 관리
+  - name: "inventory"
+    display_name: "Inventory Management (재고 관리)"
+    description: "재고 조회, 업데이트, 예약, 경고"
+
+    lead: "Inventory Part Leader"
+
+    team:
+      - role: "part-leader"
+        name: "Inventory Part Leader"
+        description: "재고 도메인 리더, 재고 정책 결정"
+
+      - role: "domain-designer"
+        name: "Inventory Domain Designer"
+        description: "재고 모델, 예약 전략, API 설계"
+
+      - role: "domain-developer"
+        name: "Inventory Domain Developer"
+        description: "개발, 테스트 (vibelab orchestrator)"
+
+    dependencies:
+      - "product"  # 상품 정보
+
+    tech_stack:
+      - "FastAPI"
+      - "PostgreSQL"
+      - "Redis (실시간 재고)"
+      - "Kafka (재고 변경 이벤트)"
+
+    path: "src/domains/inventory"
+
+    resources:
+      api_contract: "contracts/interfaces/inventory-api.yaml"
+      data_model: "docs/inventory/data-model.md"
+      readme: "src/domains/inventory/README.md"
+
+hooks:
+  permission-checker:
+    enabled: true
+    description: "파일 수정 권한 검증"
+    strict: false
+    config:
+      protected_paths:
+        - path: ".claude/project-team.yaml"
+          write_permission: ["project-manager"]
+        - path: ".claude/standards/"
+          write_permission: ["chief-architect"]
+        - path: "design-system/"
+          write_permission: ["chief-designer"]
+
+      domain_paths:
+        - pattern: "src/domains/{domain}/"
+          write_permission: ["domain-developer"]
+        - pattern: "contracts/interfaces/{domain}-api.yaml"
+          write_permission: ["domain-designer", "part-leader"]
+
+  standards-validator:
+    enabled: true
+    description: "코딩/아키텍처 표준 검증"
+    config:
+      code_style:
+        enabled: true
+        linter: "pylint (Python), eslint (TypeScript)"
+        config: ".pylintrc, .eslintrc.json"
+
+      architecture:
+        enabled: true
+        patterns:
+          - pattern: "src/domains/{domain}/"
+            must_have:
+              - "models/"
+              - "schemas/"
+              - "services/"
+              - "api.py"
+              - "events.py"
+              - "README.md"
+
+  design-validator:
+    enabled: true
+    description: "UI/UX 일관성 검증"
+    config:
+      design_tokens:
+        enabled: true
+        path: "design-system/tokens.json"
+
+      components:
+        enabled: true
+        path: "design-system/components/"
+
+  quality-gate:
+    enabled: true
+    description: "품질 게이트 (테스트, 성능, 보안)"
+    strict: false
+    config:
+      test_coverage:
+        enabled: true
+        minimum: 80
+        excluded_paths: ["tests/", "docs/"]
+
+      integration_tests:
+        enabled: true
+
+      performance:
+        enabled: true
+        max_response_time_ms: 500
+        target_p95: 200
+
+      security:
+        enabled: true
+        tool: "bandit (Python), eslint-plugin-security (TypeScript)"
+
+  interface-validator:
+    enabled: true
+    description: "도메인 간 API 계약 검증"
+    config:
+      contracts:
+        path: "contracts/interfaces/"
+        versioning: "semantic"
+
+      breaking_changes:
+        enabled: true
+        require_approval: true
+        min_notice_days: 30
+
+  cross-domain-notifier:
+    enabled: true
+    description: "도메인 간 변경 알림"
+    config:
+      watch_paths:
+        - "contracts/interfaces/"
+        - "design-system/"
+
+      notification_strategy: "dependency"
+
+risk_areas:
+  # CRITICAL: 결제 시스템
+  - pattern: "src/domains/payment/**"
+    level: CRITICAL
+    description: "결제 시스템 - 금융 데이터 민감도 높음"
+    required_approvals: ["chief-architect", "qa-manager"]
+    required_tests: ["unit", "integration", "e2e"]
+    security_checks: ["encryption", "pci-dss", "fraud-detection"]
+
+  # CRITICAL: 사용자 인증/권한
+  - pattern: "src/domains/user/auth/**"
+    level: CRITICAL
+    description: "인증/권한 - 보안 민감도 높음"
+    required_approvals: ["chief-architect"]
+    required_tests: ["unit", "integration", "security"]
+    security_checks: ["oauth", "jwt", "xss", "csrf", "sql-injection"]
+
+  # HIGH: 주문 상태 머신 (트랜잭션 일관성)
+  - pattern: "src/domains/order/state/**"
+    level: HIGH
+    description: "주문 상태 관리 - 데이터 일관성 중요"
+    required_approvals: ["dba"]
+    required_tests: ["unit", "integration"]
+
+  # HIGH: 재고 관리 (동시성 제어)
+  - pattern: "src/domains/inventory/**"
+    level: HIGH
+    description: "재고 관리 - 동시성 제어 중요"
+    required_approvals: ["dba"]
+    required_tests: ["unit", "integration", "concurrency"]
+
+  # HIGH: API 계약 변경
+  - pattern: "contracts/interfaces/**"
+    level: HIGH
+    description: "도메인 간 API 계약 - Breaking Changes 위험"
+    required_approvals: ["chief-architect"]
+    required_notifications: "all_consumers"
+
+  # HIGH: DB 마이그레이션
+  - pattern: "migrations/**"
+    level: HIGH
+    description: "DB 마이그레이션 - 데이터 손실 위험"
+    required_approvals: ["dba"]
+    required_tests: ["integration", "data_integrity"]
+
+standards:
+  code:
+    language_guides:
+      - "docs/standards/python-style.md"
+      - "docs/standards/typescript-style.md"
+      - "docs/standards/sql-style.md"
+
+    naming_conventions:
+      classes: "PascalCase"
+      functions: "snake_case (Python), camelCase (TypeScript)"
+      constants: "UPPER_SNAKE_CASE"
+      files: "snake_case"
+
+  architecture:
+    pattern: "Hexagonal Architecture (DDD)"
+    layer_structure:
+      - "models/ (Entity, ValueObject)"
+      - "schemas/ (DTO)"
+      - "services/ (UseCase)"
+      - "repositories/ (Persistence)"
+      - "api/ (HTTP Handler)"
+    documentation: "docs/standards/architecture.md"
+
+  testing:
+    coverage_minimum: 80
+    types_required:
+      - "unit"
+      - "integration"
+      - "e2e (for critical flows)"
+    test_location: "tests/"
+    documentation: "docs/standards/testing.md"
+
+  documentation:
+    readme_required: true
+    api_docs_required: true
+    changelog_required: true
+    documentation_path: "docs/"
+
+  security:
+    authentication: "OAuth2 + JWT"
+    encryption: "AES-256 (data at rest), TLS 1.3 (data in transit)"
+    secret_management: "HashiCorp Vault / AWS Secrets Manager"
+    pci_dss: "PCI-DSS 3.2.1 준수 (결제 도메인)"
+    documentation: "docs/standards/security.md"
+
+collaboration:
+  change_request_process:
+    - step: 1
+      description: "요청서 작성 (requests/to-{domain}/ 디렉토리)"
+    - step: 2
+      description: "해당 Part Leader 검토"
+    - step: 3
+      description: "영향도 분석 (interface-validator)"
+    - step: 4
+      description: "Chief Architect 승인 (major changes)"
+    - step: 5
+      description: "구현 및 테스트"
+    - step: 6
+      description: "QA Manager 승인"
+    - step: 7
+      description: "배포"
+
+  meetings:
+    - type: "Architecture Sync"
+      frequency: "weekly (Monday 10:00)"
+      attendees: ["chief-architect", "all-part-leaders"]
+      duration: "1 hour"
+
+    - type: "Design Sync"
+      frequency: "bi-weekly (Wednesday 14:00)"
+      attendees: ["chief-designer", "all-domain-designers"]
+      duration: "1 hour"
+
+    - type: "QA/Release Planning"
+      frequency: "weekly (Friday 15:00)"
+      attendees: ["qa-manager", "all-part-leaders"]
+      duration: "1 hour"
+
+    - type: "Domain Leads Standup"
+      frequency: "daily (10:30)"
+      attendees: ["project-manager", "all-part-leaders"]
+      duration: "30 minutes"
+
+  escalation:
+    - level: 1
+      description: "도메인 간 협의 (Part Leaders)"
+    - level: 2
+      description: "Project Manager 중재"
+    - level: 3
+      description: "Chief Architect 최종 결정"
+
+monitoring:
+  metrics:
+    - name: "Code Coverage"
+      target: 80
+      frequency: "daily"
+
+    - name: "Build Success Rate"
+      target: 95
+      frequency: "daily"
+
+    - name: "Test Execution Time"
+      target: "< 15 minutes"
+      frequency: "daily"
+
+    - name: "API Response Time (p95)"
+      target: "< 200ms"
+      frequency: "hourly"
+
+    - name: "Payment Success Rate"
+      target: "> 99.5%"
+      frequency: "hourly"
+
+    - name: "Error Rate"
+      target: "< 0.1%"
+      frequency: "hourly"
+
+    - name: "Inventory Accuracy"
+      target: "99.9%"
+      frequency: "daily"
+
+  dashboards:
+    - name: "Project Overview"
+      url: "http://dashboard.internal/shophub"
+
+    - name: "Quality Metrics"
+      url: "http://dashboard.internal/shophub/quality"
+
+    - name: "Performance Monitoring"
+      url: "http://prometheus.internal/shophub"
+
+environments:
+  development:
+    description: "개발 환경 (로컬)"
+    auto_deploy: false
+    requires_approval: false
+
+  staging:
+    description: "스테이징 환경"
+    auto_deploy: false
+    requires_approval: true
+    approver: "qa-manager"
+
+  production:
+    description: "운영 환경"
+    auto_deploy: false
+    requires_approval: true
+    approver: "project-manager"
+    qa_verification: true
+    monitoring: true
+
+references:
+  project_wiki: "https://wiki.internal/shophub"
+  design_system: "design-system/README.md"
+  api_documentation: "docs/api/README.md"
+  architecture_guide: "docs/architecture.md"
+  standards: "docs/standards/"
+  onboarding: "docs/onboarding/README.md"
+  domain_map: "docs/domain-map.md"
+  event_schema: "docs/events/schema.md"

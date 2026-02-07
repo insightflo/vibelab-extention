@@ -1,0 +1,619 @@
+# SaaS Project Team Configuration
+# SaaS 프로젝트 팀 구성 설정
+#
+# 프로젝트: CloudMetrics (멀티테넌트 분석 플랫폼)
+# 타입: SaaS
+# 기술 스택: FastAPI (Python) + React (TypeScript) + PostgreSQL
+
+---
+version: "1.0"
+
+project:
+  name: "CloudMetrics"
+  type: "saas"
+  description: "멀티테넌트 SaaS 분석 플랫폼 - 구독, 청구, 사용량 추적, 분석 대시보드"
+  owner: "SaaS Product Lead"
+  start_date: "2026-01-15"
+
+  tech_stack:
+    backend: "FastAPI (Python 3.11)"
+    frontend: "React 18 + TypeScript + TailwindCSS"
+    database: "PostgreSQL 15"
+    infrastructure: "Docker + Kubernetes"
+    messaging: "Kafka (사용량 이벤트)"
+    cache: "Redis"
+    timeseries_db: "InfluxDB (메트릭 저장)"
+    search: "Elasticsearch"
+
+agents:
+  project-manager:
+    enabled: true
+    description: "CloudMetrics 전체 조율, 도메인 간 조정, 로드맵 관리"
+    model: "opus"
+    permissions:
+      - read_all_domains
+      - write_project_config
+      - approve_timeline
+      - resolve_conflicts
+    responsibilities:
+      - 제품 로드맵 관리
+      - 도메인 간 의존성 해결
+      - 고객 요청 우선순위 결정
+      - 마일스톤 관리
+
+  chief-architect:
+    enabled: true
+    description: "멀티테넌트 아키텍처, 마이크로서비스 설계, 확장성 표준"
+    model: "opus"
+    permissions:
+      - read_all_domains
+      - write_standards
+      - veto_architecture
+      - approve_tech_decisions
+    responsibilities:
+      - 멀티테넌트 격리 전략 (Row-level, Schema-level)
+      - API 게이트웨이 아키텍처
+      - 데이터 파이프라인 설계
+      - 성능 및 확장성 검증
+
+  chief-designer:
+    enabled: true
+    description: "대시보드 UI/UX, 분석 시각화, 디자인 시스템"
+    model: "opus"
+    permissions:
+      - read_all_domains
+      - write_design_system
+      - review_ui_designs
+    responsibilities:
+      - 분석 대시보드 설계
+      - 데이터 시각화 표준
+      - 사용성 최적화
+      - 고급 사용자를 위한 커스터마이징 가이드
+
+  qa-manager:
+    enabled: true
+    description: "멀티테넌트 통합 테스트, 품질 게이트, 릴리스 승인"
+    model: "opus"
+    permissions:
+      - read_all_domains
+      - approve_releases
+      - define_quality_standards
+      - veto_releases
+    responsibilities:
+      - 테넌트 격리 검증 (보안)
+      - 청구 정확도 테스트
+      - 대규모 데이터셋 성능 테스트
+      - 멀티테넌트 시나리오 테스트
+
+  dba:
+    enabled: true
+    description: "멀티테넌트 DB 설계, 데이터 격리, 성능 최적화"
+    model: "opus"
+    permissions:
+      - read_all_domains
+      - write_db_standards
+      - approve_schema_changes
+      - manage_migrations
+    responsibilities:
+      - 테넌트 격리 전략 구현
+      - 파티셔닝 및 샤딩 설계
+      - 시계열 데이터 최적화
+      - 데이터 마이그레이션 계획
+
+domains:
+  # 도메인 1: 인증 및 테넌트 관리
+  - name: "auth"
+    display_name: "Authentication & Tenant Management (인증 및 테넌트)"
+    description: "SSO, SAML, 테넌트 프로비저닝, 역할 기반 접근 제어"
+
+    lead: "Auth Part Leader"
+
+    team:
+      - role: "part-leader"
+        name: "Auth Part Leader"
+        description: "인증 정책, SSO 전략, 테넌트 격리 정책"
+
+      - role: "domain-designer"
+        name: "Auth Domain Designer"
+        description: "인증 흐름, 테넌트 데이터 모델, RBAC"
+
+      - role: "domain-developer"
+        name: "Auth Domain Developer"
+        description: "개발, 테스트 (vibelab orchestrator)"
+
+    dependencies: []
+
+    tech_stack:
+      - "FastAPI"
+      - "OAuth2 / SAML2"
+      - "JWT (JSON Web Token)"
+      - "PostgreSQL"
+
+    path: "src/domains/auth"
+
+    resources:
+      api_contract: "contracts/interfaces/auth-api.yaml"
+      data_model: "docs/auth/data-model.md"
+      readme: "src/domains/auth/README.md"
+
+  # 도메인 2: 구독 관리
+  - name: "subscription"
+    display_name: "Subscription Management (구독 관리)"
+    description: "플랜 관리, 구독 생성/갱신/취소, 사용 한계"
+
+    lead: "Subscription Part Leader"
+
+    team:
+      - role: "part-leader"
+        name: "Subscription Part Leader"
+        description: "구독 정책, 플랜 설계, 제한사항 정의"
+
+      - role: "domain-designer"
+        name: "Subscription Domain Designer"
+        description: "구독 상태 머신, 플랜 모델, API 설계"
+
+      - role: "domain-developer"
+        name: "Subscription Domain Developer"
+        description: "개발, 테스트 (vibelab orchestrator)"
+
+    dependencies:
+      - "auth"  # 테넌트 정보
+
+    tech_stack:
+      - "FastAPI"
+      - "PostgreSQL"
+      - "Kafka (구독 이벤트)"
+
+    path: "src/domains/subscription"
+
+    resources:
+      api_contract: "contracts/interfaces/subscription-api.yaml"
+      data_model: "docs/subscription/data-model.md"
+      readme: "src/domains/subscription/README.md"
+
+  # 도메인 3: 청구 관리
+  - name: "billing"
+    display_name: "Billing Management (청구 관리)"
+    description: "인보이스 생성, 결제 처리, 환불, 세금 계산"
+
+    lead: "Billing Part Leader"
+
+    team:
+      - role: "part-leader"
+        name: "Billing Part Leader"
+        description: "청구 정책, 세금 규정, 결제 전략"
+
+      - role: "domain-designer"
+        name: "Billing Domain Designer"
+        description: "청구 계산 엔진, 인보이스 스키마, API 설계"
+
+      - role: "domain-developer"
+        name: "Billing Domain Developer"
+        description: "개발, 테스트 (vibelab orchestrator)"
+
+    dependencies:
+      - "subscription"  # 구독 정보
+      - "usage"         # 사용량 데이터
+
+    tech_stack:
+      - "FastAPI"
+      - "PostgreSQL"
+      - "외부 결제 게이트웨이 (Stripe, etc)"
+      - "Kafka (청구 이벤트)"
+
+    path: "src/domains/billing"
+
+    resources:
+      api_contract: "contracts/interfaces/billing-api.yaml"
+      data_model: "docs/billing/data-model.md"
+      readme: "src/domains/billing/README.md"
+
+  # 도메인 4: 사용량 추적
+  - name: "usage"
+    display_name: "Usage Tracking (사용량 추적)"
+    description: "API 호출 추적, 메트릭 수집, 사용량 보고"
+
+    lead: "Usage Part Leader"
+
+    team:
+      - role: "part-leader"
+        name: "Usage Part Leader"
+        description: "사용량 메트릭 정의, 추적 전략"
+
+      - role: "domain-designer"
+        name: "Usage Domain Designer"
+        description: "메트릭 스키마, 이벤트 정의, API 설계"
+
+      - role: "domain-developer"
+        name: "Usage Domain Developer"
+        description: "개발, 테스트 (vibelab orchestrator)"
+
+    dependencies:
+      - "auth"  # 테넌트 정보
+
+    tech_stack:
+      - "FastAPI"
+      - "Kafka (사용량 이벤트)"
+      - "InfluxDB (시계열 메트릭)"
+      - "PostgreSQL"
+
+    path: "src/domains/usage"
+
+    resources:
+      api_contract: "contracts/interfaces/usage-api.yaml"
+      data_model: "docs/usage/data-model.md"
+      readme: "src/domains/usage/README.md"
+
+  # 도메인 5: 분석 및 보고
+  - name: "analytics"
+    display_name: "Analytics & Reporting (분석 및 보고)"
+    description: "대시보드, 보고서 생성, 데이터 시각화"
+
+    lead: "Analytics Part Leader"
+
+    team:
+      - role: "part-leader"
+        name: "Analytics Part Leader"
+        description: "분석 메트릭 정의, 대시보드 기획"
+
+      - role: "domain-designer"
+        name: "Analytics Domain Designer"
+        description: "대시보드 설계, 시각화 전략, API 설계"
+
+      - role: "domain-developer"
+        name: "Analytics Domain Developer"
+        description: "개발, 테스트 (vibelab orchestrator)"
+
+    dependencies:
+      - "usage"          # 사용량 데이터
+      - "subscription"   # 구독 정보
+      - "billing"        # 청구 정보
+
+    tech_stack:
+      - "FastAPI"
+      - "Elasticsearch (분석 쿼리)"
+      - "PostgreSQL"
+      - "React (대시보드)"
+
+    path: "src/domains/analytics"
+
+    resources:
+      api_contract: "contracts/interfaces/analytics-api.yaml"
+      data_model: "docs/analytics/data-model.md"
+      readme: "src/domains/analytics/README.md"
+
+hooks:
+  permission-checker:
+    enabled: true
+    description: "멀티테넌트 데이터 격리 검증"
+    strict: true  # SaaS는 보안이 중요하므로 strict 모드
+    config:
+      protected_paths:
+        - path: ".claude/project-team.yaml"
+          write_permission: ["project-manager"]
+        - path: ".claude/standards/"
+          write_permission: ["chief-architect"]
+        - path: "design-system/"
+          write_permission: ["chief-designer"]
+
+      domain_paths:
+        - pattern: "src/domains/{domain}/"
+          write_permission: ["domain-developer"]
+        - pattern: "contracts/interfaces/{domain}-api.yaml"
+          write_permission: ["domain-designer", "part-leader"]
+
+  standards-validator:
+    enabled: true
+    description: "멀티테넌트 아키텍처 표준 검증"
+    config:
+      code_style:
+        enabled: true
+        linter: "pylint (Python), eslint (TypeScript)"
+
+      architecture:
+        enabled: true
+        patterns:
+          - pattern: "src/domains/{domain}/"
+            must_have:
+              - "models/"
+              - "schemas/"
+              - "services/"
+              - "repositories/"
+              - "api/"
+              - "README.md"
+
+      tenant_isolation:
+        enabled: true
+        rules:
+          - "모든 쿼리에 tenant_id 필터링 필수"
+          - "테넌트 간 데이터 접근 차단"
+          - "로우 레벨 보안(RLS) 정책 검증"
+
+  design-validator:
+    enabled: true
+    description: "대시보드 UI/UX 일관성"
+    config:
+      design_tokens:
+        enabled: true
+        path: "design-system/tokens.json"
+
+      components:
+        enabled: true
+        path: "design-system/components/"
+
+      visualization:
+        enabled: true
+        path: "design-system/visualization-guidelines.md"
+
+  quality-gate:
+    enabled: true
+    description: "품질 게이트 (멀티테넌트 보안 중심)"
+    strict: true
+    config:
+      test_coverage:
+        enabled: true
+        minimum: 85
+        excluded_paths: ["tests/", "docs/"]
+
+      integration_tests:
+        enabled: true
+
+      tenant_isolation_tests:
+        enabled: true
+        description: "테넌트 격리 검증 테스트"
+
+      performance:
+        enabled: true
+        max_response_time_ms: 1000
+        max_concurrent_tenants: 10000
+
+      security:
+        enabled: true
+        tool: "bandit (Python)"
+
+  interface-validator:
+    enabled: true
+    description: "도메인 간 API 계약 검증"
+    config:
+      contracts:
+        path: "contracts/interfaces/"
+        versioning: "semantic"
+
+      breaking_changes:
+        enabled: true
+        require_approval: true
+        min_notice_days: 30
+
+  cross-domain-notifier:
+    enabled: true
+    description: "도메인 간 변경 알림"
+    config:
+      watch_paths:
+        - "contracts/interfaces/"
+        - "design-system/"
+
+      notification_strategy: "dependency"
+
+risk_areas:
+  # CRITICAL: 테넌트 격리 (최고 위험)
+  - pattern: "src/domains/{domain}/repositories/**"
+    level: "CRITICAL"
+    description: "테넌트 데이터 격리 - 다중 테넌트 시스템의 보안 핵심"
+    required_approvals: ["chief-architect", "dba"]
+    required_tests: ["unit", "integration", "tenant-isolation"]
+    security_checks: ["tenant-isolation", "sql-injection", "row-level-security"]
+
+  # CRITICAL: 청구 및 결제
+  - pattern: "src/domains/billing/**"
+    level: "CRITICAL"
+    description: "청구 시스템 - 금융 데이터, 정확도 중요"
+    required_approvals: ["chief-architect", "qa-manager"]
+    required_tests: ["unit", "integration", "accuracy-verification"]
+    security_checks: ["encryption", "audit-logging"]
+
+  # CRITICAL: 인증 및 권한
+  - pattern: "src/domains/auth/**"
+    level: "CRITICAL"
+    description: "인증/권한 - 보안 민감도 최고"
+    required_approvals: ["chief-architect"]
+    required_tests: ["unit", "integration", "security"]
+    security_checks: ["oauth2", "saml2", "sso"]
+
+  # HIGH: 사용량 추적 (청구에 영향)
+  - pattern: "src/domains/usage/**"
+    level: "HIGH"
+    description: "사용량 추적 - 청구 정확도에 직접 영향"
+    required_approvals: ["dba"]
+    required_tests: ["unit", "integration", "accuracy"]
+
+  # HIGH: 구독 상태 관리
+  - pattern: "src/domains/subscription/state/**"
+    level: "HIGH"
+    description: "구독 상태 - 트랜잭션 일관성"
+    required_approvals: ["dba"]
+
+  # HIGH: API 컨트랙트
+  - pattern: "contracts/interfaces/**"
+    level: "HIGH"
+    description: "도메인 간 API 계약"
+    required_approvals: ["chief-architect"]
+    required_notifications: "all_consumers"
+
+  # HIGH: DB 마이그레이션
+  - pattern: "migrations/**"
+    level: "HIGH"
+    description: "멀티테넌트 DB 마이그레이션"
+    required_approvals: ["dba"]
+    required_tests: ["integration", "data_integrity"]
+
+  # HIGH: 성능 (응답 시간, 동시성)
+  - pattern: "src/domains/analytics/**"
+    level: "HIGH"
+    description: "분석 쿼리 - 성능 중요 (대규모 데이터셋)"
+    required_tests: ["performance", "scalability"]
+
+standards:
+  code:
+    language_guides:
+      - "docs/standards/python-style.md"
+      - "docs/standards/typescript-style.md"
+
+    naming_conventions:
+      classes: "PascalCase"
+      functions: "snake_case (Python), camelCase (TypeScript)"
+      constants: "UPPER_SNAKE_CASE"
+      tenant_id_parameter: "tenant_id (필수)"
+
+  architecture:
+    pattern: "Hexagonal Architecture + Multi-Tenancy"
+    multi_tenancy_strategy: "Row-level Security (RLS)"
+    layer_structure:
+      - "models/"
+      - "schemas/"
+      - "services/"
+      - "repositories/"
+      - "api/"
+    documentation: "docs/standards/architecture.md"
+    multi_tenancy_guide: "docs/standards/multi-tenancy.md"
+
+  testing:
+    coverage_minimum: 85
+    types_required:
+      - "unit"
+      - "integration"
+      - "tenant-isolation"
+    test_location: "tests/"
+
+  documentation:
+    readme_required: true
+    api_docs_required: true
+    changelog_required: true
+    multi_tenancy_docs: true
+
+  security:
+    authentication: "OAuth2 + SAML2 + SSO"
+    encryption: "AES-256 (at rest), TLS 1.3 (in transit)"
+    secret_management: "HashiCorp Vault"
+    multi_tenancy: "Row-level Security (RLS) 필수"
+    audit_logging: "모든 테넌트 액션 로깅"
+
+collaboration:
+  change_request_process:
+    - step: 1
+      description: "요청서 작성 (requests/to-{domain}/)"
+    - step: 2
+      description: "Part Leader 검토"
+    - step: 3
+      description: "영향도 분석"
+    - step: 4
+      description: "Chief Architect 승인 (major)"
+    - step: 5
+      description: "구현 및 테스트"
+    - step: 6
+      description: "QA Manager 승인"
+    - step: 7
+      description: "배포"
+
+  meetings:
+    - type: "Architecture Sync"
+      frequency: "weekly (Monday 10:00)"
+      attendees: ["chief-architect", "dba", "all-part-leaders"]
+      duration: "1.5 hours"
+
+    - type: "Design & UX Sync"
+      frequency: "bi-weekly (Wednesday 14:00)"
+      attendees: ["chief-designer", "analytics-pl"]
+      duration: "1 hour"
+
+    - type: "Billing & Subscription Review"
+      frequency: "weekly (Thursday 15:00)"
+      attendees: ["billing-pl", "subscription-pl", "dba"]
+      duration: "1 hour"
+
+    - type: "QA/Release Planning"
+      frequency: "weekly (Friday 10:00)"
+      attendees: ["qa-manager", "all-part-leaders"]
+      duration: "1.5 hours"
+
+  escalation:
+    - level: 1
+      description: "도메인 간 협의 (Part Leaders)"
+    - level: 2
+      description: "Project Manager 중재"
+    - level: 3
+      description: "Chief Architect 최종 결정"
+
+monitoring:
+  metrics:
+    - name: "Code Coverage"
+      target: 85
+      frequency: "daily"
+
+    - name: "API Response Time (p95)"
+      target: "< 500ms"
+      frequency: "hourly"
+
+    - name: "Billing Accuracy"
+      target: "99.99%"
+      frequency: "daily"
+
+    - name: "Payment Success Rate"
+      target: "> 99%"
+      frequency: "hourly"
+
+    - name: "Concurrent Tenant Support"
+      target: "> 10000"
+      frequency: "daily"
+
+    - name: "Error Rate"
+      target: "< 0.1%"
+      frequency: "hourly"
+
+    - name: "Data Consistency Score"
+      target: "100%"
+      frequency: "daily"
+
+  dashboards:
+    - name: "Project Overview"
+      url: "http://dashboard.internal/cloudmetrics"
+
+    - name: "SaaS Metrics"
+      url: "http://dashboard.internal/cloudmetrics/saas-metrics"
+
+    - name: "Performance Monitoring"
+      url: "http://prometheus.internal/cloudmetrics"
+
+    - name: "Billing Reconciliation"
+      url: "http://dashboard.internal/cloudmetrics/billing"
+
+environments:
+  development:
+    description: "개발 환경"
+    auto_deploy: false
+    requires_approval: false
+
+  staging:
+    description: "스테이징 (테스트 테넌트)"
+    auto_deploy: false
+    requires_approval: true
+    approver: "qa-manager"
+    isolation_level: "full"  # 프로덕션과 동일하게 격리
+
+  production:
+    description: "운영 환경 (실제 고객)"
+    auto_deploy: false
+    requires_approval: true
+    approver: "project-manager"
+    qa_verification: true
+    monitoring: true
+    disaster_recovery: true
+
+references:
+  project_wiki: "https://wiki.internal/cloudmetrics"
+  design_system: "design-system/README.md"
+  api_documentation: "docs/api/README.md"
+  architecture_guide: "docs/architecture.md"
+  multi_tenancy_guide: "docs/multi-tenancy.md"
+  standards: "docs/standards/"
+  onboarding: "docs/onboarding/README.md"
+  saas_guide: "docs/saas/README.md"

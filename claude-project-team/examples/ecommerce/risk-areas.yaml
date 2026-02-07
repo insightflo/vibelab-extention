@@ -1,0 +1,404 @@
+# E-commerce Risk Areas Configuration
+# 이커머스 프로젝트 위험 영역 정의
+#
+# 위험 영역은 특별한 주의와 감시가 필요한 코드 영역을 정의합니다.
+# 이 영역의 변경에는 자동으로 더 엄격한 검증과 알림이 적용됩니다.
+
+---
+version: "1.0"
+
+project: "ShopHub (E-commerce)"
+created_date: "2026-02-08"
+
+# ============================================================================
+# CRITICAL: 결제 시스템 (최고 위험)
+# ============================================================================
+risk_areas:
+  - id: "CRITICAL-payment-gateway"
+    pattern: "src/domains/payment/**"
+    level: "CRITICAL"
+    description: "결제 시스템 - 금융 데이터 민감도 높음, PCI-DSS 준수 필수"
+
+    # 이 영역의 변경에 필요한 승인자들
+    required_approvals:
+      - role: "chief-architect"
+        reason: "아키텍처 설계 검증"
+      - role: "qa-manager"
+        reason: "결제 흐름 테스트 검증"
+
+    # 필수 테스트 타입
+    required_tests:
+      - type: "unit"
+        coverage_minimum: 90
+      - type: "integration"
+        description: "결제 게이트웨이 통합 테스트"
+      - type: "e2e"
+        description: "전체 결제 플로우 테스트"
+
+    # 보안 검사
+    security_checks:
+      - name: "encryption"
+        description: "AES-256 암호화 확인"
+      - name: "pci-dss"
+        description: "PCI-DSS 3.2.1 준수 검증"
+      - name: "sql-injection"
+        description: "SQL Injection 취약점 스캔"
+      - name: "xss"
+        description: "XSS 취약점 스캔"
+      - name: "csrf"
+        description: "CSRF 토큰 검증"
+      - name: "fraud-detection"
+        description: "사기 탐지 로직 검증"
+
+    # 이 영역 변경 시 알림받을 대상
+    notify_on_change:
+      - role: "dba"
+        reason: "DB 스키마 변경 검증"
+      - role: "all-part-leaders"
+        reason: "결제 정책 변경 알림"
+
+    # 구체적인 위험 지점들
+    critical_files:
+      - path: "src/domains/payment/services/payment_processor.py"
+        risk: "결제 처리 핵심 로직"
+
+      - path: "src/domains/payment/services/encryption_service.py"
+        risk: "민감 정보 암호화"
+
+      - path: "src/domains/payment/api/payment_routes.py"
+        risk: "결제 API 엔드포인트"
+
+      - path: "migrations/payment_schema.py"
+        risk: "결제 관련 스키마 변경"
+
+# ============================================================================
+# CRITICAL: 사용자 인증/권한 시스템
+# ============================================================================
+  - id: "CRITICAL-auth-system"
+    pattern: "src/domains/user/**"
+    level: "CRITICAL"
+    description: "인증/권한 시스템 - 보안 민감도 최고, 모든 도메인에 영향"
+
+    required_approvals:
+      - role: "chief-architect"
+        reason: "보안 아키텍처 검증"
+
+    required_tests:
+      - type: "unit"
+        coverage_minimum: 95
+      - type: "integration"
+        description: "OAuth2 + JWT 통합 테스트"
+      - type: "security"
+        description: "보안 시나리오 테스트"
+
+    security_checks:
+      - name: "oauth2"
+        description: "OAuth2 구현 검증"
+      - name: "jwt"
+        description: "JWT 토큰 검증 (서명, 만료)"
+      - name: "password-hashing"
+        description: "비밀번호 해싱 (bcrypt 이상)"
+      - name: "session-management"
+        description: "세션 관리 보안"
+      - name: "rate-limiting"
+        description: "로그인 시도 Rate Limiting"
+
+    notify_on_change:
+      - role: "all-part-leaders"
+        reason: "인증 정책 변경 영향도 높음"
+      - role: "qa-manager"
+        reason: "모든 테스트에서 검증 필요"
+
+    critical_files:
+      - path: "src/domains/user/services/auth_service.py"
+        risk: "인증 로직 핵심"
+
+      - path: "src/domains/user/services/jwt_service.py"
+        risk: "JWT 토큰 생성/검증"
+
+      - path: "src/domains/user/api/auth_routes.py"
+        risk: "인증 엔드포인트"
+
+      - path: ".claude/standards/security.md"
+        risk: "보안 표준 문서"
+
+# ============================================================================
+# HIGH: 주문 상태 머신 (데이터 일관성)
+# ============================================================================
+  - id: "HIGH-order-state-machine"
+    pattern: "src/domains/order/state/**"
+    level: "HIGH"
+    description: "주문 상태 관리 - 트랜잭션 일관성 중요, 금융 영향도"
+
+    required_approvals:
+      - role: "dba"
+        reason: "DB 트랜잭션 검증"
+
+    required_tests:
+      - type: "unit"
+        coverage_minimum: 85
+      - type: "integration"
+        description: "상태 전환 통합 테스트"
+
+    security_checks:
+      - name: "concurrency"
+        description: "동시성 제어 검증"
+      - name: "transaction-isolation"
+        description: "트랜잭션 격리 수준"
+
+    notify_on_change:
+      - role: "part-leader:order"
+        reason: "주문 도메인 리더"
+      - role: "part-leader:payment"
+        reason: "결제 도메인과 연동"
+
+    critical_files:
+      - path: "src/domains/order/state/order_state_machine.py"
+        risk: "상태 전환 로직"
+
+      - path: "src/domains/order/services/order_service.py"
+        risk: "주문 관리 로직"
+
+      - path: "migrations/order_schema.py"
+        risk: "주문 스키마 변경"
+
+# ============================================================================
+# HIGH: 재고 관리 (동시성 제어)
+# ============================================================================
+  - id: "HIGH-inventory-management"
+    pattern: "src/domains/inventory/**"
+    level: "HIGH"
+    description: "재고 관리 - 동시성 제어, Race Condition 방지 중요"
+
+    required_approvals:
+      - role: "dba"
+        reason: "DB 락 전략 검증"
+
+    required_tests:
+      - type: "unit"
+        coverage_minimum: 85
+      - type: "integration"
+        description: "재고 업데이트 통합 테스트"
+      - type: "concurrency"
+        description: "동시성 테스트 (부하 테스트)"
+
+    security_checks:
+      - name: "race-condition"
+        description: "Race Condition 취약점"
+      - name: "deadlock-prevention"
+        description: "데드락 방지"
+
+    notify_on_change:
+      - role: "part-leader:inventory"
+        reason: "재고 도메인 리더"
+      - role: "part-leader:order"
+        reason: "주문 도메인과 연동"
+
+    critical_files:
+      - path: "src/domains/inventory/services/stock_service.py"
+        risk: "재고 조정 핵심 로직"
+
+      - path: "src/domains/inventory/services/reservation_service.py"
+        risk: "재고 예약 로직"
+
+      - path: "migrations/inventory_schema.py"
+        risk: "재고 스키마 변경"
+
+# ============================================================================
+# HIGH: API 컨트랙트 (도메인 간 인터페이스)
+# ============================================================================
+  - id: "HIGH-api-contracts"
+    pattern: "contracts/interfaces/**"
+    level: "HIGH"
+    description: "도메인 간 API 계약 - Breaking Changes 위험, 영향도 전파"
+
+    required_approvals:
+      - role: "chief-architect"
+        reason: "API 아키텍처 검증"
+
+    required_tests:
+      - type: "integration"
+        description: "API 호환성 테스트"
+
+    notify_on_change:
+      - type: "all_consumers"
+        description: "해당 API를 사용하는 모든 도메인"
+
+    changelog_required: true
+    versioning: "semantic"
+    breaking_changes_policy:
+      notice_period_days: 30
+      support_period_days: 90
+
+    critical_files:
+      - path: "contracts/interfaces/user-api.yaml"
+        risk: "모든 도메인이 의존"
+
+      - path: "contracts/interfaces/order-api.yaml"
+        risk: "결제, 재고 도메인이 의존"
+
+      - path: "contracts/interfaces/payment-api.yaml"
+        risk: "주문 도메인이 의존"
+
+      - path: "contracts/interfaces/inventory-api.yaml"
+        risk: "주문, 상품 도메인이 의존"
+
+# ============================================================================
+# HIGH: 데이터베이스 마이그레이션
+# ============================================================================
+  - id: "HIGH-db-migrations"
+    pattern: "migrations/**"
+    level: "HIGH"
+    description: "DB 마이그레이션 - 데이터 손실 위험, 롤백 전략 필수"
+
+    required_approvals:
+      - role: "dba"
+        reason: "마이그레이션 검증"
+
+    required_tests:
+      - type: "integration"
+        description: "마이그레이션 성공 테스트"
+      - type: "data_integrity"
+        description: "데이터 무결성 검증"
+
+    deployment_strategy:
+      type: "blue-green"
+      rollback_plan: "required"
+      backup_before_migration: true
+      downtime: "minimal"
+
+    notify_on_change:
+      - role: "dba"
+        reason: "DB 관리자"
+      - role: "part-leader:affected-domains"
+        reason: "영향받는 도메인"
+
+    critical_files:
+      - path: "migrations/"
+        risk: "모든 마이그레이션"
+
+      - path: "src/domains/user/models.py"
+        risk: "사용자 모델 변경"
+
+      - path: "src/domains/order/models.py"
+        risk: "주문 모델 변경"
+
+      - path: "src/domains/payment/models.py"
+        risk: "결제 모델 변경"
+
+# ============================================================================
+# HIGH: 보안/암호화 표준
+# ============================================================================
+  - id: "HIGH-security-standards"
+    pattern: "src/domains/**/*.py"
+    level: "HIGH"
+    description: "보안 관련 코드 - 암호화, 인증, 권한"
+
+    code_pattern_restrictions:
+      - must_not_contain: "hardcoded_secrets"
+      - must_not_contain: "plain_text_passwords"
+      - must_use: "environment_variables"
+      - must_use: "HashiCorp Vault"
+
+    security_checks:
+      - name: "hardcoded-secrets"
+        description: "하드코딩된 시크릿 스캔"
+      - name: "dependency-vulnerabilities"
+        description: "라이브러리 취약점 스캔"
+      - name: "code-review-security"
+        description: "보안 코드 리뷰"
+
+    notify_on_change:
+      - role: "chief-architect"
+        reason: "보안 표준 담당"
+
+# ============================================================================
+# HIGH: 성능 및 확장성 관련
+# ============================================================================
+  - id: "HIGH-performance-critical"
+    pattern: "src/domains/product/**"
+    level: "HIGH"
+    description: "상품 검색/조회 - 성능 중요, 고트래픽"
+
+    performance_requirements:
+      - metric: "api_response_time_p95"
+        target: "200ms"
+      - metric: "search_response_time"
+        target: "100ms"
+
+    required_tests:
+      - type: "performance"
+        description: "부하 테스트 (1000 RPS)"
+      - type: "load"
+        description: "지속 부하 테스트"
+
+    monitoring_requirements:
+      - metric: "response_time"
+        alert_threshold: "300ms"
+      - metric: "error_rate"
+        alert_threshold: "0.5%"
+
+# ============================================================================
+# MEDIUM: 프론트엔드 UI/UX
+# ============================================================================
+  - id: "MEDIUM-ui-components"
+    pattern: "frontend/src/components/**"
+    level: "MEDIUM"
+    description: "UI 컴포넌트 - 디자인 시스템 준수"
+
+    required_approvals:
+      - role: "chief-designer"
+        reason: "디자인 시스템 일관성"
+
+    design_checks:
+      - name: "design-system-compliance"
+        description: "디자인 시스템 규칙 준수"
+      - name: "accessibility-wcag"
+        description: "WCAG 2.1 접근성"
+      - name: "responsive-design"
+        description: "반응형 디자인"
+
+    notify_on_change:
+      - role: "qa-manager"
+        reason: "E2E 테스트 영향도"
+
+# ============================================================================
+# 위험 영역 검증 규칙
+# ============================================================================
+validation_rules:
+  - name: "automatic-level-escalation"
+    description: |
+      - 파일이 여러 CRITICAL 영역에 영향을 미치면 → 모든 승인자 필수
+      - API 변경이 5개 이상 도메인에 영향 → breaking change 처리
+      - DB 마이그레이션 + 코드 변경 함께 → DBA 승인 필수
+
+  - name: "notification-cascade"
+    description: |
+      - CRITICAL 변경 → 즉시 Slack 알림
+      - HIGH 변경 → 영향받는 Part Leaders 알림
+      - MEDIUM 변경 → 슬랙 채널 공지
+
+  - name: "rollback-policy"
+    description: |
+      - CRITICAL: 항상 롤백 계획 필수
+      - HIGH: 프로덕션 배포 시 롤백 계획 필수
+      - MEDIUM: 롤백 계획 권장
+
+# ============================================================================
+# 참고 자료
+# ============================================================================
+references:
+  security_standards: "docs/standards/security.md"
+  pci_dss_guide: "docs/standards/pci-dss.md"
+  database_standards: "docs/standards/database.md"
+  testing_standards: "docs/standards/testing.md"
+  deployment_guide: "docs/deployment/README.md"
+  incident_response: "docs/operational/incident-response.md"
+
+# 이 파일의 업데이트 정보
+metadata:
+  version: "1.0"
+  last_updated: "2026-02-08"
+  updated_by: "Documentation Team"
+  review_cycle: "quarterly"
+  next_review: "2026-05-08"

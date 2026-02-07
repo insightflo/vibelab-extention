@@ -1,0 +1,665 @@
+# SaaS Risk Areas Configuration
+# SaaS 프로젝트 위험 영역 정의
+#
+# SaaS 특성:
+# - 멀티테넌트 환경에서 데이터 격리 필수
+# - 청구 정확도가 수익에 직접 영향
+# - 고객 신뢰도 = 서비스 안정성
+# - 규정(GDPR, CCPA, SOC2) 준수 필수
+
+---
+version: "1.0"
+
+project: "CloudMetrics (SaaS Analytics Platform)"
+created_date: "2026-02-08"
+
+# ============================================================================
+# CRITICAL: 테넌트 데이터 격리 (최고 위험 - SaaS의 핵심)
+# ============================================================================
+risk_areas:
+  - id: "CRITICAL-tenant-isolation"
+    pattern: "src/domains/{domain}/repositories/**"
+    level: "CRITICAL"
+    description: |
+      테넌트 데이터 격리 - 다중 테넌트 시스템의 보안 핵심
+
+      만약 테넌트 A의 데이터가 테넌트 B에게 노출되면:
+      - 고객 신뢰 상실
+      - 규정 위반 (GDPR, CCPA)
+      - 법적 책임
+
+      따라서 모든 쿼리는 반드시 tenant_id로 필터링되어야 함
+
+    required_approvals:
+      - role: "chief-architect"
+        reason: "아키텍처 검증"
+      - role: "dba"
+        reason: "데이터 격리 검증"
+
+    required_tests:
+      - type: "unit"
+        coverage_minimum: 95
+      - type: "integration"
+        description: "테넌트 간 데이터 격리 검증"
+      - type: "tenant-isolation"
+        description: "Cross-tenant 데이터 접근 불가능 확인"
+
+    security_checks:
+      - name: "tenant-isolation"
+        description: "모든 쿼리에 tenant_id 필터링"
+      - name: "rls-policy"
+        description: "Row-Level Security(RLS) 정책 검증"
+      - name: "sql-injection"
+        description: "SQL Injection 취약점"
+      - name: "data-leakage"
+        description: "데이터 유출 경로 분석"
+
+    code_pattern_restrictions:
+      - must_not_contain: "WHERE ... (without tenant_id)"
+      - must_contain: "WHERE tenant_id = :tenant_id"
+      - must_use: "Row-Level Security (PostgreSQL)"
+
+    notify_on_change:
+      - role: "all-part-leaders"
+        reason: "모든 도메인에 영향"
+      - role: "qa-manager"
+        reason: "모든 테스트 재검증 필요"
+
+    critical_files:
+      - path: "src/domains/{domain}/repositories/"
+        risk: "DB 쿼리 실행 - tenant_id 필터링 필수"
+
+      - path: "src/domains/{domain}/models/"
+        risk: "ORM 모델에 tenant_id 필드 필수"
+
+      - path: "migrations/rls_policies/"
+        risk: "Row-Level Security 정책"
+
+    testing_strategy: |
+      1. 단위 테스트: 단일 tenant의 데이터만 조회
+      2. 통합 테스트: 여러 tenant 동시 접근 시뮬레이션
+      3. 격리 테스트: Tenant A의 쿼리로 Tenant B 데이터 접근 불가능 확인
+
+      테스트 데이터:
+      - Tenant A: 1000 records
+      - Tenant B: 2000 records
+      → A의 쿼리: 정확히 1000 records만 반환
+      → B의 쿼리: 정확히 2000 records만 반환
+
+# ============================================================================
+# CRITICAL: 청구 및 결제 시스템
+# ============================================================================
+  - id: "CRITICAL-billing-system"
+    pattern: "src/domains/billing/**"
+    level: "CRITICAL"
+    description: |
+      청구 시스템 - SaaS 수익의 핵심
+
+      청구 오류의 영향:
+      - 고객 신뢰 상실
+      - 법적 문제 (세금, 계약 위반)
+      - 환불 요청 증가
+      - 수익 손실
+
+      따라서 모든 계산은 감시(audit logging)되어야 함
+
+    required_approvals:
+      - role: "chief-architect"
+        reason: "청구 아키텍처 검증"
+      - role: "qa-manager"
+        reason: "청구 정확도 검증"
+
+    required_tests:
+      - type: "unit"
+        coverage_minimum: 95
+      - type: "integration"
+        description: "청구 계산 엔진 통합 테스트"
+      - type: "accuracy-verification"
+        description: "청구 정확도 검증 (샘플 데이터)"
+
+    security_checks:
+      - name: "encryption"
+        description: "금융 데이터 AES-256 암호화"
+      - name: "audit-logging"
+        description: "모든 청구 계산 감사 로깅"
+      - name: "reconciliation"
+        description: "외부 결제 게이트웨이와 조정"
+
+    test_scenarios:
+      - scenario: "기본 청구"
+        setup: "100 USD 구독, 1개월"
+        expected: "청구액: 100 USD"
+
+      - scenario: "업그레이드 중간에"
+        setup: |
+          1일: 50 USD 플랜
+          15일: 100 USD 플랜 업그레이드
+        expected: |
+          1-14일: 50 USD (14/30 * 50)
+          15-30일: 100 USD (16/30 * 100)
+          합계: 77.33 USD
+
+      - scenario: "구독 취소"
+        setup: |
+          1일: 구독 시작 (100 USD)
+          20일: 구독 취소
+        expected: "청구액: 66.67 USD (20/30 * 100)"
+
+      - scenario: "환율 변동"
+        setup: "USD 100, KRW로 청구 (환율 1200)"
+        expected: |
+          청구액: 120,000 KRW
+          환율 기록: 청구 시점 기준으로 저장
+
+      - scenario: "세금 계산"
+        setup: "EU 고객, VAT 21%"
+        expected: |
+          기본: 100 USD
+          VAT: 21 USD
+          합계: 121 USD
+
+    audit_logging_requirements:
+      - log_event: "billing_calculation_started"
+        fields: ["tenant_id", "subscription_id", "start_date", "end_date"]
+
+      - log_event: "usage_counted"
+        fields: ["tenant_id", "metric", "count", "unit_price"]
+
+      - log_event: "discount_applied"
+        fields: ["tenant_id", "discount_code", "discount_amount"]
+
+      - log_event: "invoice_generated"
+        fields: ["tenant_id", "invoice_id", "amount", "tax", "total"]
+
+      - log_event: "payment_processed"
+        fields: ["tenant_id", "payment_id", "gateway", "status"]
+
+    notify_on_change:
+      - role: "dba"
+        reason: "DB 스키마 검증"
+      - role: "all-part-leaders"
+        reason: "청구 변경이 전체에 영향"
+
+    critical_files:
+      - path: "src/domains/billing/services/billing_engine.py"
+        risk: "청구 계산 핵심 로직"
+
+      - path: "src/domains/billing/services/tax_calculator.py"
+        risk: "세금 계산"
+
+      - path: "src/domains/billing/services/reconciliation_service.py"
+        risk: "외부 결제 게이트웨이 조정"
+
+      - path: "src/domains/billing/repositories/invoice_repository.py"
+        risk: "인보이스 데이터 저장"
+
+# ============================================================================
+# CRITICAL: 인증 및 권한 (Multi-Tenant SSO)
+# ============================================================================
+  - id: "CRITICAL-auth-sso"
+    pattern: "src/domains/auth/**"
+    level: "CRITICAL"
+    description: |
+      인증/권한 - 다중 테넌트 SSO 시스템
+
+      인증 오류의 영향:
+      - 테넌트 A가 B의 계정으로 로그인
+      - SAML/OAuth 토큰 위조
+      - 권한 에스컬레이션
+
+      따라서 모든 인증은 엄격하게 검증되어야 함
+
+    required_approvals:
+      - role: "chief-architect"
+        reason: "SSO/SAML 아키텍처 검증"
+
+    required_tests:
+      - type: "unit"
+        coverage_minimum: 95
+      - type: "integration"
+        description: "OAuth2 + SAML2 + SSO 통합 테스트"
+      - type: "security"
+        description: "토큰 검증, 권한 검증"
+
+    security_checks:
+      - name: "oauth2"
+        description: "OAuth2 구현 (PKCE)"
+      - name: "saml2"
+        description: "SAML2 인증 검증"
+      - name: "sso"
+        description: "Single Sign-On 검증"
+      - name: "jwt-validation"
+        description: "JWT 서명 검증"
+      - name: "password-security"
+        description: "비밀번호 보안 (bcrypt)"
+      - name: "mfa"
+        description: "2FA/MFA 구현"
+
+    test_scenarios:
+      - scenario: "기본 로그인"
+        steps:
+          - "사용자 로그인 요청"
+          - "JWT 토큰 발급"
+          - "토큰 유효성 검증"
+        expected: "로그인 성공"
+
+      - scenario: "SSO (SAML)"
+        steps:
+          - "SAML 어설션 생성"
+          - "서명 검증"
+          - "테넌트 매핑"
+        expected: "SSO 로그인 성공"
+
+      - scenario: "권한 검증"
+        steps:
+          - "사용자 로그인"
+          - "다른 테넌트의 리소스 접근 시도"
+        expected: "403 Forbidden 반환"
+
+      - scenario: "토큰 만료"
+        steps:
+          - "만료된 토큰으로 요청"
+        expected: "401 Unauthorized 반환"
+
+    critical_files:
+      - path: "src/domains/auth/services/auth_service.py"
+        risk: "인증 로직"
+
+      - path: "src/domains/auth/services/sso_service.py"
+        risk: "SSO/SAML 구현"
+
+      - path: "src/domains/auth/services/jwt_service.py"
+        risk: "JWT 토큰 관리"
+
+      - path: "src/domains/auth/api/auth_routes.py"
+        risk: "인증 엔드포인트"
+
+# ============================================================================
+# HIGH: 사용량 추적 (청구에 직접 영향)
+# ============================================================================
+  - id: "HIGH-usage-tracking"
+    pattern: "src/domains/usage/**"
+    level: "HIGH"
+    description: |
+      사용량 추적 - 청구 정확도의 기초
+
+      사용량 오류의 영향:
+      - 청구액 오류 (고객 청구 부족, 손익 발생)
+      - 고객 불만족
+      - 감사 실패 (Audit)
+
+      따라서 모든 사용량 이벤트는 기록되어야 함
+
+    required_approvals:
+      - role: "dba"
+        reason: "시계열 데이터 최적화"
+
+    required_tests:
+      - type: "unit"
+        coverage_minimum: 85
+      - type: "integration"
+        description: "사용량 수집 및 집계"
+      - type: "accuracy"
+        description: "사용량 정확도 검증"
+
+    security_checks:
+      - name: "data-integrity"
+        description: "사용량 데이터 무결성"
+      - name: "duplication"
+        description: "중복 기록 방지 (idempotent)"
+      - name: "tenant-isolation"
+        description: "테넌트 간 사용량 격리"
+
+    test_scenarios:
+      - scenario: "1000 API 호출"
+        setup: "테넌트 A가 API 1000번 호출"
+        expected: |
+          사용량: 1000 calls
+          청구액: 1000 * (가격/call)
+
+      - scenario: "중복 기록 방지"
+        setup: "동일 이벤트 2회 발송"
+        expected: "사용량: 1회만 기록 (Idempotent)"
+
+      - scenario: "대량 사용량"
+        setup: "1시간에 1,000,000 이벤트"
+        expected: |
+          처리 시간: < 5분
+          정확도: 100%
+
+    critical_files:
+      - path: "src/domains/usage/services/usage_collector.py"
+        risk: "사용량 수집"
+
+      - path: "src/domains/usage/services/aggregation_service.py"
+        risk: "사용량 집계"
+
+      - path: "src/domains/usage/repositories/metrics_repository.py"
+        risk: "InfluxDB 저장"
+
+# ============================================================================
+# HIGH: 구독 상태 머신 (일관성)
+# ============================================================================
+  - id: "HIGH-subscription-state"
+    pattern: "src/domains/subscription/state/**"
+    level: "HIGH"
+    description: |
+      구독 상태 관리 - 트랜잭션 일관성
+
+      구독 상태 오류의 영향:
+      - 구독자가 보통 사용자로 다운그레이드
+      - 유료 사용자가 무료로 표시
+      - 구독 종료 후에도 접근 가능
+
+      따라서 모든 상태 전환은 원자성(Atomic)이어야 함
+
+    required_approvals:
+      - role: "dba"
+        reason: "트랜잭션 격리 검증"
+
+    required_tests:
+      - type: "unit"
+        coverage_minimum: 90
+      - type: "integration"
+        description: "상태 전환 통합 테스트"
+
+    security_checks:
+      - name: "atomic-transaction"
+        description: "원자성 트랜잭션"
+      - name: "deadlock-prevention"
+        description: "데드락 방지"
+
+    state_diagram: |
+      ┌─────────┐
+      │ PENDING │
+      └────┬────┘
+           │
+           ↓
+      ┌─────────┐
+      │ ACTIVE  │─────────┐
+      └────┬────┘         │
+           │              │
+           │              ↓
+           │         ┌──────────┐
+           │         │ PAUSED   │
+           │         └──────────┘
+           │
+           ↓
+      ┌──────────┐
+      │ CANCELED │
+      └──────────┘
+
+    test_scenarios:
+      - scenario: "구독 활성화"
+        from_state: "PENDING"
+        to_state: "ACTIVE"
+        expected: "즉시 사용 가능"
+
+      - scenario: "구독 일시 중지"
+        from_state: "ACTIVE"
+        to_state: "PAUSED"
+        expected: "기능 접근 불가"
+
+      - scenario: "구독 취소"
+        from_state: "ACTIVE"
+        to_state: "CANCELED"
+        expected: "즉시 접근 차단"
+
+      - scenario: "동시 상태 변경 (Race Condition)"
+        setup: |
+          Thread A: ACTIVE → PAUSED
+          Thread B: ACTIVE → CANCELED
+        expected: "둘 다 성공하되, 최종 상태는 하나만 유지"
+
+    critical_files:
+      - path: "src/domains/subscription/state/subscription_state_machine.py"
+        risk: "상태 전환 로직"
+
+# ============================================================================
+# HIGH: API 컨트랙트 (Breaking Changes)
+# ============================================================================
+  - id: "HIGH-api-contracts"
+    pattern: "contracts/interfaces/**"
+    level: "HIGH"
+    description: |
+      도메인 간 API 계약 - Breaking Changes 위험
+
+      API Breaking Change의 영향:
+      - 다른 도메인 코드 깨짐
+      - 클라이언트 앱 호환성 문제
+      - 고객 환경에서 장애 발생
+
+      따라서 Breaking Change는 최소 30일 공지 후 적용
+
+    required_approvals:
+      - role: "chief-architect"
+        reason: "API 아키텍처 검증"
+
+    required_tests:
+      - type: "integration"
+        description: "API 호환성 테스트"
+
+    versioning: "semantic"  # major.minor.patch
+
+    breaking_changes:
+      notice_period_days: 30
+      support_period_days: 90
+
+    notify_on_change:
+      - type: "all_consumers"
+        description: "해당 API를 사용하는 모든 도메인"
+
+    test_scenarios:
+      - scenario: "필드 추가 (Non-breaking)"
+        change: "response에 new_field 추가"
+        version_change: "minor"
+        client_compatibility: "기존 클라이언트 영향 없음"
+
+      - scenario: "필드 제거 (Breaking)"
+        change: "response에서 old_field 제거"
+        version_change: "major"
+        required_action: |
+          1. 30일 전 공지
+          2. 클라이언트 마이그레이션 기간 제공
+          3. 이전 버전 90일 지원
+
+      - scenario: "에러 응답 변경 (Breaking)"
+        change: "404 에러를 400으로 변경"
+        version_change: "major"
+        required_action: |
+          1. 클라이언트 에러 처리 로직 변경 필요
+          2. 사전 공지 필수
+
+    critical_files:
+      - path: "contracts/interfaces/auth-api.yaml"
+        risk: "모든 도메인이 의존"
+
+      - path: "contracts/interfaces/billing-api.yaml"
+        risk: "subscription, analytics 의존"
+
+      - path: "contracts/interfaces/usage-api.yaml"
+        risk: "billing, analytics 의존"
+
+# ============================================================================
+# HIGH: 데이터베이스 마이그레이션
+# ============================================================================
+  - id: "HIGH-db-migrations"
+    pattern: "migrations/**"
+    level: "HIGH"
+    description: |
+      멀티테넌트 DB 마이그레이션 - 영향도 높음
+
+      마이그레이션 실패의 영향:
+      - 전체 서비스 다운
+      - 데이터 손실 (모든 테넌트 영향)
+      - 수동 복구 필요
+
+      따라서 마이그레이션은 신중하게 계획되어야 함
+
+    required_approvals:
+      - role: "dba"
+        reason: "마이그레이션 검증"
+
+    required_tests:
+      - type: "integration"
+        description: "마이그레이션 성공 테스트"
+      - type: "data_integrity"
+        description: "데이터 무결성 검증"
+
+    deployment_strategy:
+      type: "blue-green"
+      rollback_plan: "required"
+      backup_before_migration: true
+      downtime: "minimal"
+
+    pre_migration_checklist:
+      - "database backup created"
+      - "test environment migration successful"
+      - "rollback script prepared"
+      - "communication to customers"
+      - "support team notified"
+
+    test_scenarios:
+      - scenario: "스키마 추가"
+        change: "새로운 테이블 추가"
+        expected: "전체 테넌트 스키마 통일"
+
+      - scenario: "컬럼 추가"
+        change: "기존 테이블에 NOT NULL 컬럼"
+        expected: "기존 데이터에 기본값 설정"
+
+      - scenario: "컬럼 삭제"
+        change: "사용하지 않는 컬럼 제거"
+        expected: "영향받는 도메인 모두 확인 후 진행"
+
+      - scenario: "인덱스 재구성"
+        change: "성능 최적화를 위한 인덱싱 변경"
+        expected: "마이그레이션 시간 < 5분 (다운타임)"
+
+    critical_files:
+      - path: "migrations/"
+        risk: "모든 마이그레이션"
+
+      - path: "migrations/0001_initial_schema.py"
+        risk: "초기 스키마"
+
+      - path: "migrations/rls_policies/"
+        risk: "Row-Level Security 정책"
+
+# ============================================================================
+# HIGH: 성능 및 확장성 (대규모 데이터셋)
+# ============================================================================
+  - id: "HIGH-performance-scalability"
+    pattern: "src/domains/analytics/**"
+    level: "HIGH"
+    description: |
+      분석 쿼리 성능 - 대규모 데이터셋 처리
+
+      성능 문제의 영향:
+      - 대시보드 로딩 지연 (사용자 불만족)
+      - 리포트 생성 실패
+      - DB 과부하 → 전체 서비스 영향
+
+      따라서 대규모 데이터셋 성능 테스트 필수
+
+    required_tests:
+      - type: "performance"
+        description: "부하 테스트 (10,000 테넌트, 1개월 데이터)"
+      - type: "scalability"
+        description: "확장성 테스트 (100,000 테넌트까지)"
+
+    performance_requirements:
+      - metric: "dashboard_load_time"
+        target: "< 2 seconds"
+      - metric: "report_generation"
+        target: "< 10 seconds (1개월 데이터)"
+      - metric: "concurrent_queries"
+        target: "> 1000"
+
+    test_scenarios:
+      - scenario: "일반 대시보드"
+        data: "1,000,000 records"
+        expected_time: "< 2 seconds"
+
+      - scenario: "월별 리포트"
+        data: "10,000,000 records (1개월)"
+        expected_time: "< 10 seconds"
+
+      - scenario: "대규모 쿼리"
+        data: "100,000,000 records (전체)"
+        expected_time: "< 30 seconds"
+
+    optimization_strategies:
+      - "Elasticsearch를 활용한 분석 쿼리 최적화"
+      - "시계열 데이터 파티셔닝"
+      - "적절한 인덱싱 전략"
+      - "결과 캐싱 (Redis)"
+
+# ============================================================================
+# MEDIUM: 프론트엔드 보안
+# ============================================================================
+  - id: "MEDIUM-frontend-security"
+    pattern: "frontend/src/**"
+    level: "MEDIUM"
+    description: |
+      프론트엔드 보안 - 클라이언트 측 취약점
+
+      프론트엔드 보안 문제:
+      - XSS (Cross-Site Scripting)
+      - CSRF (Cross-Site Request Forgery)
+      - 토큰 탈취
+
+    security_checks:
+      - name: "xss-prevention"
+        description: "사용자 입력 필터링"
+      - name: "csrf-tokens"
+        description: "CSRF 토큰 사용"
+      - name: "secure-storage"
+        description: "토큰을 httpOnly 쿠키에 저장"
+
+# ============================================================================
+# 위험 영역 검증 규칙
+# ============================================================================
+validation_rules:
+  - name: "automatic-level-escalation"
+    description: |
+      - 파일이 여러 CRITICAL 영역에 영향 → 모든 승인자 필수
+      - API 변경이 5개 이상 도메인에 영향 → breaking change 처리
+      - 청구 로직 변경 → QA Manager 승인 필수
+
+  - name: "notification-cascade"
+    description: |
+      - CRITICAL 변경 → 즉시 Slack 알림
+      - HIGH 변경 → 영향받는 Part Leaders 알림
+      - MEDIUM 변경 → 슬랙 채널 공지
+
+  - name: "testing-requirements"
+    description: |
+      - CRITICAL: Unit (95%), Integration, E2E
+      - HIGH: Unit (85%), Integration
+      - MEDIUM: Unit (80%)
+
+  - name: "rollback-policy"
+    description: |
+      - CRITICAL: 항상 롤백 계획 + 자동 롤백 스크립트
+      - HIGH: 프로덕션 배포 시 롤백 계획 필수
+      - MEDIUM: 롤백 계획 권장
+
+# ============================================================================
+# 참고 자료
+# ============================================================================
+references:
+  security_standards: "docs/standards/security.md"
+  multi_tenancy_guide: "docs/multi-tenancy.md"
+  database_standards: "docs/standards/database.md"
+  testing_standards: "docs/standards/testing.md"
+  saas_guide: "docs/saas/README.md"
+  compliance: "docs/compliance/GDPR-CCPA.md"
+  disaster_recovery: "docs/operational/disaster-recovery.md"
+
+metadata:
+  version: "1.0"
+  last_updated: "2026-02-08"
+  updated_by: "Documentation Team"
+  review_cycle: "quarterly"
+  next_review: "2026-05-08"
