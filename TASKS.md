@@ -261,7 +261,7 @@
 
 > **목표**: GitHub 배포를 위한 문서 및 설치 스크립트
 
-### [ ] P6-T1: install.sh 작성
+### [x] P6-T1: install.sh 작성
 - **담당**: backend-specialist
 - **산출물**: `install.sh`
 - **기능**:
@@ -272,7 +272,7 @@
 - **참조**: 설계 문서 Section 13
 - **Worktree**: `worktree/phase-6-deploy`
 
-### [ ] P6-T2: README.md 작성
+### [x] P6-T2: README.md 작성
 - **담당**: docs-specialist
 - **산출물**: `README.md`
 - **내용**:
@@ -282,7 +282,7 @@
   - 라이선스
 - **의존성**: P6-T1
 
-### [ ] P6-T3: 설치/사용 문서 작성
+### [x] P6-T3: 설치/사용 문서 작성
 - **담당**: docs-specialist
 - **산출물**:
   - `docs/INSTALLATION.md`
@@ -290,7 +290,7 @@
   - `docs/MAINTENANCE.md`
 - **의존성**: P6-T1
 
-### [ ] P6-T4: 템플릿 정리 및 예제 추가
+### [x] P6-T4: 템플릿 정리 및 예제 추가
 - **담당**: docs-specialist
 - **산출물**:
   - `templates/project-team.yaml`
