@@ -264,8 +264,113 @@ Key principles:
 
 ---
 
+### 4. interface-validator.js (Post-Tool-Use)
+
+**Event**: `post_tool_use`
+**Tools**: `Edit`, `Write`
+**Task**: P2-T5
+
+Validates domain interface contracts when YAML specs are modified. Detects breaking changes, performs impact analysis, and identifies affected consumer domains.
+
+**Validation Rules**:
+
+| Change Type | Breaking? | Action |
+|------------|----------|--------|
+| Field added | No | Notification only |
+| Field removed | Yes | Requires consumer updates |
+| Field type changed | Yes | Requires consumer updates |
+| Endpoint removed | Yes | Requires consumer migration |
+| Endpoint added | No | Notification only |
+| Version bump | No | Informational |
+
+**File Patterns**:
+- Validates: `contracts/interfaces/**/*.yaml`, `contracts/interfaces/**/*.yml`
+
+**Features**:
+- YAML spec parsing (key-value, nested objects, arrays)
+- Previous vs new spec comparison
+- Breaking change detection and classification
+- Consumer domain impact analysis
+- Suggested files for consumer updates
+- Machine-readable JSON output format
+
+**Interface Contract Format**:
+
+```yaml
+# contracts/interfaces/member-api.yaml
+version: 1.1.0
+domain: member
+endpoints:
+  - path: /api/members/{id}
+    method: GET
+    response:
+      id: uuid
+      name: string
+      email: string
+      grade: string
+consumers:
+  - domain: order
+    uses: [GET /api/members/{id}]
+```
+
+**Testing**:
+
+```bash
+# Run unit tests
+node __tests__/interface-validator.test.js
+
+# Or with jest
+npx jest __tests__/interface-validator.test.js --verbose
+```
+
+**Hook Protocol**:
+
+Input (stdin):
+```json
+{
+  "tool_name": "Edit",
+  "tool_input": {
+    "file_path": "contracts/interfaces/member-api.yaml",
+    "content": "new YAML content",
+    "old_content": "previous YAML content"
+  }
+}
+```
+
+Output (stdout):
+
+- **Breaking change detected**:
+  ```json
+  {
+    "hookSpecificOutput": {
+      "additionalContext": "[Interface Contract BREAKING CHANGE] Domain \"member\" v2.0.0\n  Changes: 1 breaking..."
+    }
+  }
+  ```
+
+- **Non-breaking update**:
+  ```json
+  {
+    "hookSpecificOutput": {
+      "additionalContext": "[Interface Contract SPEC UPDATE] Domain \"member\" v1.1.0\n  Changes: 1 non-breaking..."
+    }
+  }
+  ```
+
+- **New spec creation**:
+  ```json
+  {
+    "hookSpecificOutput": {
+      "additionalContext": "[Interface Contract NEW] Domain \"member\" v1.0.0\n  Endpoints: 1\n  Consumers: 1..."
+    }
+  }
+  ```
+
+---
+
 ## Version History
 
 | Date | Version | Changes |
 |------|---------|---------|
 | 2026-02-07 | 1.0.0 | Initial release with permission-checker and design-validator |
+| 2026-02-07 | 1.1.0 | Add interface-validator for domain contract enforcement |
