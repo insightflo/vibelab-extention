@@ -1,6 +1,6 @@
 # Inflo's VibeLab Extension
 
-**VibeLab Skills 위에서 더 안전하고 정밀한 구현을 돕는 확장 스킬 팩 v3.0**
+**VibeLab Skills 위에서 더 안전하고 정밀한 구현을 돕는 확장 스킬 팩 v3.1**
 
 > **필수 요구사항**: 이 확장팩은 [VibeLab Skills v1.9.2+](https://vibelabs.kr/skills/new)가 설치된 환경에서만 정상 작동합니다.
 
@@ -51,7 +51,8 @@ cd claude-project-team
 | **바이브랩** | `/auto-orchestrate` | 완전 자동화 (30~200개) | 대규모 구현 |
 | **바이브랩** | `/trinity` | 五柱 코드 품질 평가 | Phase 완료 |
 | **바이브랩** | `/code-review` | 2단계 코드 리뷰 | 기능 완료 |
-| **우리스킬** | `/workflow` | **메타 허브** - 51개 스킬 라우팅 | 언제든지 |
+| **우리스킬** | `/workflow` | **메타 허브** - 52개 스킬 라우팅 | 언제든지 |
+| **우리스킬** | `/governance-setup` | Phase 0 거버넌스 팀 구성 **(v3.1 NEW)** | 대규모 프로젝트 시작 |
 | **우리스킬** | `/agile` | 레이어별 스프린트 (1~30개) | 소규모 구현 |
 | **우리스킬** | `/recover` | 범용 복구 허브 | 작업 중단 시 |
 | **우리스킬** | `/audit` | 배포 전 종합 감사 | 배포 전 |
@@ -64,13 +65,13 @@ cd claude-project-team
 
 ---
 
-## 확장 스킬 (Extension Skills) v3.0
+## 확장 스킬 (Extension Skills) v3.1
 
 ### 기존 스킬 (5개)
 
 #### 1. Workflow Guide (`/workflow`) - 메타 허브
 
-**51개 스킬 중 최적의 스킬을 자동 추천** (바이브랩 35개 + Editor-K 6개 + 우리스킬 10개)
+**52개 스킬 중 최적의 스킬을 자동 추천** (바이브랩 35개 + Editor-K 6개 + 우리스킬 11개)
 
 ```
 /workflow
@@ -113,9 +114,23 @@ cd claude-project-team
 /multi-ai-review
 ```
 
+### v3.1 NEW: Phase 0 거버넌스 스킬
+
+#### 6. Governance Setup (`/governance-setup`)
+
+**대규모 프로젝트 시작 전 거버넌스 팀 구성**
+
+```bash
+/governance-setup
+```
+
+- PM, Chief Architect, Designer, QA Manager, DBA 순차 실행
+- 각 에이전트가 선행 산출물 생성 (프로젝트 계획, ADR, 디자인 시스템, 품질 기준, DB 표준)
+- 대규모 기준: 10+ tasks, 2+ domains, 2+ team members
+
 ### v3.0 NEW: 유지보수 스킬 (5개)
 
-#### 6. Impact Analyzer (`/impact`)
+#### 7. Impact Analyzer (`/impact`)
 
 **파일 변경 전 영향도 분석**
 
@@ -123,50 +138,40 @@ cd claude-project-team
 /impact src/services/user_service.py
 ```
 
-- 영향 받는 파일 목록
-- 관련 테스트 파일
-- 위험도 평가 (CRITICAL/HIGH/MEDIUM/LOW)
-- 권장 검토자
-
-#### 7. Dependency Graph (`/deps`)
+#### 8. Dependency Graph (`/deps`)
 
 **의존성 그래프 시각화 및 순환 감지**
 
 ```bash
 /deps                    # 전체 도메인 의존성
 /deps --cycles           # 순환 의존성만
-/deps src/api/ --tree    # 의존성 트리
 ```
 
-#### 8. Changelog Query (`/changelog`)
+#### 9. Changelog Query (`/changelog`)
 
 **변경 이력 조회 및 필터링**
 
 ```bash
 /changelog                      # 최근 변경
 /changelog --domain user        # 도메인별
-/changelog --type fix           # 유형별
-/changelog --stats              # 통계
 ```
 
-#### 9. Coverage Map (`/coverage`)
+#### 10. Coverage Map (`/coverage`)
 
 **테스트 커버리지 조회**
 
 ```bash
 /coverage                    # 전체 커버리지
 /coverage --uncovered        # 미커버 영역
-/coverage --threshold 80     # 80% 미만 파일
 ```
 
-#### 10. Architecture Map (`/architecture`)
+#### 11. Architecture Map (`/architecture`)
 
 **아키텍처 맵 시각화**
 
 ```bash
 /architecture              # 전체 아키텍처
 /architecture domains      # 도메인 구조
-/architecture api          # API 카탈로그
 ```
 
 ---
@@ -190,7 +195,7 @@ cd claude-project-team
 
 ---
 
-## 권장 워크플로우 (v3.0)
+## 권장 워크플로우 (v3.1)
 
 ```
 시작
@@ -201,11 +206,14 @@ cd claude-project-team
   │
   ├─ 기획 완료 ──────────────────── /tasks-generator (바이브랩)
   │
+  ├─ [NEW!] 대규모 프로젝트? ─────── /governance-setup (우리스킬)
+  │   └─ PM → Architect → Designer → QA → DBA 순차 실행
+  │
   ├─ 구현 시작
   │   ├─ 1~30개 태스크 ──────────── /agile auto (우리스킬)
   │   └─ 30~200개 태스크 ─────────── /auto-orchestrate (바이브랩)
   │
-  ├─ 유지보수/리팩토링 ───────────── NEW!
+  ├─ 유지보수/리팩토링
   │   ├─ 수정 전 영향도 ──────────── /impact (우리스킬)
   │   ├─ 의존성 확인 ────────────── /deps (우리스킬)
   │   └─ 변경 이력 ───────────────── /changelog (우리스킬)
@@ -226,13 +234,14 @@ cd claude-project-team
 
 ```
 vibelab-extension/
-├── skills/                       # 우리스킬 (10개)
-│   ├── workflow-guide/           # v3.0.0 - 메타 허브 (51개 스킬)
+├── skills/                       # 우리스킬 (11개)
+│   ├── workflow-guide/           # v3.1.0 - 메타 허브 (52개 스킬)
+│   ├── governance-setup/         # v1.0.0 - Phase 0 거버넌스 (NEW)
 │   ├── agile/                    # v1.9.0 - 레이어별 스프린트
 │   ├── recover/                  # v1.9.0 - 범용 복구
 │   ├── quality-auditor/          # v2.1.0 - 종합 감사
 │   ├── multi-ai-review/          # v1.0.0 - 3개 AI 협업 리뷰
-│   └── coverage/                 # v2.2.0 - 테스트 커버리지 (NEW)
+│   └── coverage/                 # v2.2.0 - 테스트 커버리지
 │
 ├── claude-project-team/          # v1.0.0 - AI 팀 협업 시스템 (NEW)
 │   ├── install.sh                # 설치 스크립트
@@ -304,7 +313,8 @@ cd claude-project-team
 
 | 버전 | 날짜 | 주요 변경 |
 |------|------|-----------|
-| **v3.0.0** | 2026-02-08 | **Claude Project Team 추가** - 9 에이전트, 10 Hook, 5 유지보수 스킬, workflow-guide v3.0 |
+| **v3.1.0** | 2026-02-08 | **governance-setup 스킬 추가** - Phase 0 거버넌스 팀 구성 (PM→Architect→Designer→QA→DBA) |
+| v3.0.0 | 2026-02-08 | Claude Project Team 추가 - 9 에이전트, 10 Hook, 5 유지보수 스킬 |
 | v2.2.0 | 2026-02-02 | VibeLab v1.8.1 통합 (trinity, reverse, sync, cost-router) |
 | v2.1.0 | 2026-01-28 | multi-ai-review 스킬 추가 |
 | v2.0.0 | 2026-01-27 | MCP 의존성 제거, workflow-guide 강화 |
