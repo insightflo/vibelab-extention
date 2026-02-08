@@ -368,9 +368,88 @@ Output (stdout):
 
 ---
 
+### 11. task-sync.js (Post-Tool-Use)
+
+**Event**: `post_tool_use`
+**Tools**: `Edit`, `Write`, `TaskUpdate`
+**Task**: Task synchronization
+
+Automatically syncs task completion status to the original TASKS.md file.
+
+**Problem Solved**:
+- VibeLab creates `docs/planning/06-tasks.md` but skills reference `TASKS.md`
+- Task completion doesn't always sync to the original file
+- This hook finds the task file regardless of location and updates it
+
+**Features**:
+- Auto-discovers task file (TASKS.md, docs/planning/06-tasks.md, etc.)
+- Extracts task IDs from code comments (@TASK P1-T1, #P1-T1)
+- Updates checkboxes when tasks are marked complete
+- Integrates with Claude's internal TaskUpdate tool
+
+**Task ID Patterns**:
+```
+@TASK P1-T1          # Code comment annotation
+#P1-T1               # Hashtag reference
+Task P1-T1 completed # Explicit completion mention
+[P1-T1]              # Bracket notation (commit messages)
+```
+
+**Task File Discovery Order**:
+1. `TASKS.md` (project root)
+2. `docs/planning/06-tasks.md` (VibeLab convention)
+3. `docs/planning/tasks.md`
+4. `docs/tasks.md`
+5. Any `*tasks*.md` file (fallback search)
+
+**Output Example**:
+```json
+{
+  "hookSpecificOutput": {
+    "additionalContext": "[Task Sync]\n  Tasks File: docs/planning/06-tasks.md\n  Updated: P1-T1, P1-T2\n"
+  }
+}
+```
+
+**Configuration**:
+Add to `~/.claude/settings.json`:
+```json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${HOME}/.claude/hooks/task-sync.js\"",
+            "timeout": 5,
+            "statusMessage": "Syncing task status..."
+          }
+        ]
+      },
+      {
+        "matcher": "TaskUpdate",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${HOME}/.claude/hooks/task-sync.js\"",
+            "timeout": 5,
+            "statusMessage": "Syncing task to TASKS.md..."
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+---
+
 ## Version History
 
 | Date | Version | Changes |
 |------|---------|---------|
-| 2026-02-07 | 1.0.0 | Initial release with permission-checker and design-validator |
+| 2026-02-08 | 1.2.0 | Add task-sync hook for TASKS.md synchronization |
 | 2026-02-07 | 1.1.0 | Add interface-validator for domain contract enforcement |
+| 2026-02-07 | 1.0.0 | Initial release with permission-checker and design-validator |
