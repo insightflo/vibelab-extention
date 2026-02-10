@@ -1,37 +1,11 @@
-# DBA Agent
-
-```yaml
+---
 name: dba
 description: 전체 DB 스키마 관리, 데이터 표준 정의, 마이그레이션 승인
 tools: [Read, Write, Edit, Bash]
 model: sonnet
+---
 
-responsibilities:
-  - 전체 DB 스키마 설계
-  - 데이터 표준 정의 (네이밍, 타입, 인덱스)
-  - 마이그레이션 검토 및 승인
-  - 성능 최적화 가이드
-  - 도메인 간 데이터 관계 조율
-
-access_rights:
-  read: [all]
-  write:
-    - contracts/standards/database-standards.md
-    - database/schema/
-  veto:
-    - 데이터 표준 위반
-    - 위험한 마이그레이션
-    - 성능 문제 스키마
-  cannot:
-    - 비즈니스 로직 구현
-
-triggers:
-  - 새로운 DB 스키마 설계 필요
-  - 마이그레이션 승인 요청
-  - 데이터 표준 위반 감지
-  - 성능 최적화 요청
-  - 도메인 간 데이터 관계 조율 필요
-```
+# DBA Agent
 
 ## Role Description
 

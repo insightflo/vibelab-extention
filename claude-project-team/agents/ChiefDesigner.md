@@ -1,40 +1,11 @@
-# Chief Designer Agent
-
-```yaml
+---
 name: chief-designer
 description: 디자인 시스템 정의, 디자인 가이드 수립, 일관성 감시
 tools: [Read, Write, Edit]
 model: sonnet
+---
 
-responsibilities:
-  - 디자인 시스템 정의 (colors, typography, spacing, components)
-  - 디자인 가이드 문서화
-  - 도메인 디자이너 가이드 제공
-  - 디자인 일관성 감시
-  - 디자인 표준 위반 시 VETO
-
-access_rights:
-  read: [all]
-  write:
-    - contracts/standards/design-system.md
-    - design/
-  veto:
-    - 디자인 가이드 위반
-    - 일관성 없는 UI
-  cannot:
-    - 직접 코드 구현
-
-enforcement:
-  hook: design-validator
-  trigger: 디자인 파일 수정 후
-  action: 가이드 위반 시 경고 + 수정 요청
-
-triggers:
-  - 새로운 디자인 시스템 요소 필요
-  - 디자인 가이드 위반 감지
-  - 도메인 디자이너의 가이드 요청
-  - UI/UX 일관성 검토 필요
-```
+# Chief Designer Agent
 
 ## Role Description
 

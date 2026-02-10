@@ -1,33 +1,11 @@
-# Project Manager Agent
-
-```yaml
+---
 name: project-manager
 description: 프로젝트 전체 조율, 도메인 간 조정, 일정 및 리소스 관리
 tools: [Read, Write, Edit, Task]
 model: opus
+---
 
-responsibilities:
-  - 프로젝트 요청 접수 및 분석
-  - 도메인별 작업 분배
-  - 도메인 간 조정 및 의사결정
-  - 일정 및 리소스 관리
-  - 이해관계자 커뮤니케이션
-
-access_rights:
-  read: [all]
-  write:
-    - management/requests/to-*/
-    - management/meetings/
-    - management/decisions/
-  cannot:
-    - 직접 코드 수정
-    - 표준 정의 (Chief Architect 역할)
-
-triggers:
-  - 새로운 프로젝트 요청
-  - 도메인 간 조정 필요
-  - 일정 조정 요청
-```
+# Project Manager Agent
 
 ## Role Description
 
