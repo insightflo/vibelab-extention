@@ -1,6 +1,6 @@
 # Inflo's VibeLab Extension
 
-**VibeLab Skills 위에서 더 안전하고 정밀한 구현을 돕는 확장 스킬 팩 v3.1**
+**VibeLab Skills 위에서 더 안전하고 정밀한 구현을 돕는 확장 스킬 팩 v3.1.2**
 
 > **필수 요구사항**: 이 확장팩은 [VibeLab Skills v1.9.2+](https://vibelabs.kr/skills/new)가 설치된 환경에서만 정상 작동합니다.
 
@@ -65,7 +65,7 @@ cd claude-project-team
 
 ---
 
-## 확장 스킬 (Extension Skills) v3.1
+## 확장 스킬 (Extension Skills) v3.1.2
 
 ### 기존 스킬 (5개)
 
@@ -78,6 +78,7 @@ cd claude-project-team
 ```
 
 - 바이브랩스킬 + 우리스킬 전체 카탈로그 관리
+- **세션 중단 후 자동 복구** - 진행 상태 감지 후 다음 단계 안내 **(v3.1.2)**
 - 유지보수 워크플로우 추가 (버그 수정, 리팩토링, 건강 점검)
 - Claude Project Team Hook/Agent 시스템 연동
 
@@ -327,7 +328,8 @@ cd claude-project-team
 
 | 버전 | 날짜 | 주요 변경 |
 |------|------|-----------|
-| **v3.1.0** | 2026-02-11 | **governance-setup 스킬 추가**, workflow-guide 개선 (에이전트 팀 필요 여부 명확화) |
+| **v3.1.2** | 2026-02-11 | **워크플로우 연속성 강화** - 세션 중단 후에도 진행 상태 자동 감지, 기획/거버넌스 진행 중 상태 판별 |
+| v3.1.0 | 2026-02-11 | governance-setup 스킬 추가, workflow-guide 개선 (에이전트 팀 필요 여부 명확화) |
 | v3.0.0 | 2026-02-08 | Claude Project Team 추가 - 9 에이전트, 10 Hook, 5 유지보수 스킬 |
 | v2.2.0 | 2026-02-02 | VibeLab v1.8.1 통합 (trinity, reverse, sync, cost-router) |
 | v2.1.0 | 2026-01-28 | multi-ai-review 스킬 추가 |
