@@ -1,8 +1,8 @@
 ---
 name: quality-auditor
 description: Phase 완료/배포 전 종합 품질 감사. 기획 정합성 + DDD 검증 + 테스트 + 브라우저 검증을 수행합니다. /audit 트리거.
-version: 2.2.0
-updated: 2026-02-07
+version: 2.3.0
+updated: 2026-02-21
 ---
 
 # 🕵️ Quality Auditor (배포 전 종합 감사)
@@ -348,4 +348,4 @@ mcp__playwright__browser_console_messages → 콘솔 에러 확인
 
 ---
 
-**Last Updated**: 2026-02-07 (v2.2.0 - vibelab v1.9.2 Hook System Integration)
+**Last Updated**: 2026-02-21 (v2.3.0 - vibelab v1.10.0 에로스/Poietes 검증 항목 추가)

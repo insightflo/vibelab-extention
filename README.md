@@ -1,8 +1,8 @@
 # Inflo's VibeLab Extension
 
-**VibeLab Skills 위에서 더 안전하고 정밀한 구현을 돕는 확장 스킬 팩 v3.1.2**
+**VibeLab Skills 위에서 더 안전하고 정밀한 구현을 돕는 확장 스킬 팩 v3.2.0**
 
-> **필수 요구사항**: 이 확장팩은 [VibeLab Skills v1.9.2+](https://vibelabs.kr/skills/new)가 설치된 환경에서만 정상 작동합니다.
+> **필수 요구사항**: 이 확장팩은 [VibeLab Skills v1.10.0+](https://vibelabs.kr/skills/new)가 설치된 환경에서만 정상 작동합니다.
 
 VibeLab의 `/socrates`와 `/tasks-generator`가 만들어낸 기획 문서와 태스크 목록을 기반으로, **레이어별 점진적 구현**, **맥락 복구**, **품질 감사**, **워크플로우 라우팅**, 그리고 **v3.0에서 새로 추가된 Claude Project Team 시스템**을 제공합니다.
 
@@ -65,13 +65,13 @@ cd claude-project-team
 
 ---
 
-## 확장 스킬 (Extension Skills) v3.1.2
+## 확장 스킬 (Extension Skills) v3.2.0
 
 ### 기존 스킬 (5개)
 
 #### 1. Workflow Guide (`/workflow`) - 메타 허브
 
-**52개 스킬 중 최적의 스킬을 자동 추천** (바이브랩 35개 + Editor-K 6개 + 우리스킬 11개)
+**63개 스킬 중 최적의 스킬을 자동 추천** (바이브랩 46개 + Editor-K 6개 + 우리스킬 11개)
 
 ```
 /workflow
@@ -328,6 +328,7 @@ cd claude-project-team
 
 | 버전 | 날짜 | 주요 변경 |
 |------|------|-----------|
+| **v3.2.0** | 2026-02-21 | **vibelab v1.10.0 연동** - 신규 스킬 11개 지원 (eros, poietes, pro 시리즈), tmux 병렬 모드, Progressive Disclosure 적용 |
 | **v3.1.2** | 2026-02-11 | **워크플로우 연속성 강화** - 세션 중단 후에도 진행 상태 자동 감지, 기획/거버넌스 진행 중 상태 판별 |
 | v3.1.0 | 2026-02-11 | governance-setup 스킬 추가, workflow-guide 개선 (에이전트 팀 필요 여부 명확화) |
 | v3.0.0 | 2026-02-08 | Claude Project Team 추가 - 9 에이전트, 10 Hook, 5 유지보수 스킬 |
